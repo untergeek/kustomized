@@ -1,0 +1,93 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: pihole
+  name: pihole-ro
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: pihole
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: pihole
+    spec:
+      containers:
+        - name: pihole-ro
+          image: pihole/pihole:2024.07.0
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: TZ
+              value: "UTC"
+          ports:
+            - name: dns-tcp
+              containerPort: 53
+              protocol: TCP
+            - name: dns-udp
+              containerPort: 53
+              protocol: UDP
+            - name: web
+              containerPort: 80
+              protocol: TCP
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "896Mi"
+              hugepages-2Mi: 256Mi
+          readinessProbe:
+            exec:
+              command: ['dig', '@127.0.0.1', 'cloudflare.com']
+            failureThreshold: 12
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: dns-tcp
+            failureThreshold: 12
+            periodSeconds: 5
+          startupProbe:
+            tcpSocket:
+              port: dns-tcp
+            failureThreshold: 90
+            initialDelaySeconds: 1
+            periodSeconds: 1
+          volumeMounts:
+            - name: pihole-etc
+              mountPath: /etc/pihole
+              readOnly: true
+            - name: pihole-dnsm
+              mountPath: /etc/dnsmasq.d
+              readOnly: true
+            - name: custom-dnsmasq
+              mountPath: /etc/dnsmasq.d/02-localdns.conf
+              subPath: 02-localdns.conf
+            - name: hugepage-2mi
+              mountPath: /hugepages-2Mi
+      volumes:
+        - name: pihole-etc
+          persistentVolumeClaim:
+            claimName: pvc-etc
+        - name: pihole-dnsm
+          persistentVolumeClaim:
+            claimName: pvc-dnsmasq
+        - name: custom-dnsmasq
+          configMap:
+            defaultMode: 420
+            name: pihole-custom-dnsmasq
+        - name: hugepage-2mi
+          emptyDir:
+            medium: HugePages-2Mi
+      initContainers:
+        - name: init-db
+          image: busybox:1.36.1
+          command: ['sh', '-c', "name=pihole-tcp; port=80; ns () { echo $(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace) ; } ; check () { nc -w 1 $1.$(ns).svc.cluster.local $2 -e /bin/echo ; echo $? ; } ; until [ $(check $name $port) -eq 0 ]; do echo waiting for $name; sleep 1; done"]

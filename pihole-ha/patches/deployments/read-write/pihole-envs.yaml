@@ -1,0 +1,30 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pihole-rw
+spec:
+  template:
+    spec:
+      containers:
+        - name: pihole-rw
+          env:
+            - name: FTLCONF_LOCAL_IPV4
+              value: "<LOADBALANCER_IP>"
+            - name: FTLCONF_MAXDBDAYS
+              value: "90"
+            - name: FTLCONF_MAXNETAGE
+              value: "45"
+            - name: PROXY_LOCATION
+              value: "<LOADBALANCER_IP>:80"
+            - name: VIRTUAL_HOST
+              value: "<PIHOLE-UI.EXAMPLE.COM>"
+            - name: CORS_HOSTS
+              value: "<EXAMPLE.COM>"
+            - name: PIHOLE_DNS_
+              value: "<ADD LOCAL or UPSTREAM DNS or comment these lines>"
+            - name: WEBLOGS_STDOUT  # This puts logs where kubectl logs <pod> can see them
+              value: "1"
+            - name: DNSMASQ_LISTENING
+              value: all
+            # Add any other env vars you may need
