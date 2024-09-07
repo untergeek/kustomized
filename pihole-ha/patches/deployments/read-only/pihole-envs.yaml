@@ -1,0 +1,18 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pihole-ro
+spec:
+  template:
+    spec:
+      containers:
+        - name: pihole-ro
+          env:
+            - name: FTLCONF_LOCAL_IPV4
+              value: "<LOADBALANCER_IP>"
+            - name: PIHOLE_DNS_
+              value: "<ADD LOCAL or UPSTREAM DNS or comment these lines>"
+            - name: DNSMASQ_LISTENING
+              value: all
+            # Add any other env vars you may need

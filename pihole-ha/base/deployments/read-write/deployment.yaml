@@ -1,0 +1,89 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: pihole
+  name: pihole-rw
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pihole
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: pihole
+    spec:
+      containers:
+        - name: pihole-rw
+          image: pihole/pihole:2024.07.0
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: TZ
+              value: "UTC"
+            - name: WEBPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pihole-web-password
+                  key: password
+          ports:
+            - name: dns-tcp
+              containerPort: 53
+              protocol: TCP
+            - name: dns-udp
+              containerPort: 53
+              protocol: UDP
+            - name: web
+              containerPort: 80
+              protocol: TCP
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "896Mi"
+              hugepages-2Mi: 256Mi
+          readinessProbe:
+            exec:
+              command: ['dig', '@127.0.0.1', 'cloudflare.com']
+            failureThreshold: 12
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: dns-tcp
+            failureThreshold: 12
+            periodSeconds: 5
+          startupProbe:
+            tcpSocket:
+              port: web
+            failureThreshold: 90
+            initialDelaySeconds: 1
+            periodSeconds: 1
+          volumeMounts:
+            - name: pihole-etc
+              mountPath: /etc/pihole
+            - name: pihole-dnsm
+              mountPath: /etc/dnsmasq.d
+            - name: custom-dnsmasq
+              mountPath: /etc/dnsmasq.d/02-localdns.conf
+              subPath: 02-localdns.conf
+            - name: hugepage-2mi
+              mountPath: /hugepages-2Mi
+      volumes:
+        - name: pihole-etc
+          persistentVolumeClaim:
+            claimName: pvc-etc
+        - name: pihole-dnsm
+          persistentVolumeClaim:
+            claimName: pvc-dnsmasq
+        - name: custom-dnsmasq
+          configMap:
+            defaultMode: 420
+            name: pihole-custom-dnsmasq
+        - name: hugepage-2mi
+          emptyDir:
+            medium: HugePages-2Mi

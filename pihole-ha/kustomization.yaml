@@ -1,0 +1,94 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - base/deployments
+  - base/services
+  - base/volumes
+  - base/ingress.yaml
+
+namespace: pihole-ha
+
+images:
+  - name: pihole/pihole
+    newTag: 2024.07.0
+
+configMapGenerator:
+  - name: pihole-custom-dnsmasq
+    behavior: replace
+    files:
+      - patches/volumes/02-mymasq.conf
+
+secretGenerator:
+- name: pihole-ui-secret
+  literals:
+  envs:
+  - .env.secret
+
+patches:
+# Volume Settings. Change the sizes as needed.
+- patch: |-
+    - op: replace
+      path: "/spec/resources/requests/storage"
+      value: "10Gi"
+    - op: add
+      path: "/spec/storageClassName"
+      value: "<YOUR STORAGECLASS NAME>"
+  target:
+    kind: PersistentVolumeClaim
+    name: pvc-etc
+- patch: |-
+    - op: replace
+      path: "/spec/resources/requests/storage"
+      value: "1Gi"
+    - op: add
+      path: "/spec/storageClassName"
+      value: "<YOUR STORAGECLASS NAME>"
+  target:
+    kind: PersistentVolumeClaim
+    name: pvc-dnsmasq
+# Service Settings
+- patch:
+  path: patches/services/tcp.yaml
+- patch:
+  path: patches/services/udp.yaml
+# Ingress Settings
+- patch: |-
+    - op: replace
+      path: "/spec/rules/0/host"
+      value: "<PIHOLE-UI.EXAMPLE.COM>"
+    - op: replace
+      path: "/spec/tls/0/hosts/0"
+      value: "<PIHOLE-UI.EXAMPLE.COM>"
+    - op: replace
+      path: "/spec/tls/0/secretName"
+      value: "<YOUR_TLS_CERT_SECRET>"
+  target:
+    kind: Ingress
+    name: pihole-ingress
+# Deployment settings:
+# Read-Write:
+- patch: |-
+    - op: replace
+      path: "/spec/template/spec/containers/0/env/0/value"
+      value: "<YOUR TIMEZONE>"
+    - op: replace
+      path: "/spec/template/spec/containers/0/env/1/valueFrom/secretKeyRef/name"
+      value: "pihole-ui-secret"
+  target:
+    kind: Deployment
+    name: pihole-rw
+- patch:
+  path: patches/deployments/read-write/pihole-envs.yaml
+# Read-Only:
+- patch: |-
+    - op: replace
+      path: "/spec/template/spec/containers/0/env/0/value"
+      value: "<YOUR TIMEZONE>"
+    - op: replace
+      path: "/spec/template/spec/containers/0/env/1/valueFrom/secretKeyRef/name"
+      value: "pihole-ui-secret"
+  target:
+    kind: Deployment
+    name: pihole-ro
+- patch:
+  path: patches/deployments/read-only/pihole-envs.yaml

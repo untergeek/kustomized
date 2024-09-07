@@ -1,0 +1,19 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: pihole-tcp
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Cluster
+  selector:
+    app: pihole
+  ports:
+    - protocol: TCP
+      port: 53
+      name: dnstcp
+      targetPort: 53
+    - protocol: TCP
+      port: 80
+      name: web
+      targetPort: 80
