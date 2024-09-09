@@ -1,6 +1,42 @@
-# Pi-hole Kubernetes HA
+# \*NON-FUNCTIONAL\* Pi-hole Kubernetes HA 
 
-## It finally works!
+## It finally works! UPDATE: *Oh wait, nevermind...*
+
+### DO NOT USE THIS
+
+It actually *doesn't* work, at least not completely:
+
+- Query logs are only from the read-write instance, making it much harder to see
+  what's being blocked and what is not.
+- Edits/additions to the block lists do not propagate to the read-only nodes
+  without restart or other intervention.
+- Weird loadbalancer issues seem to prevent uploading and restoring a `teleporter`
+  backup. If I set `dnsmasq` to allow traffic on all interfaces, it works, but
+  does not filter any more. If filtering is working, the ability to restore from
+  a `teleporter` backup does not.
+
+In other words, **this is only here as a cautionary tale of my hubris.** Do not
+use this without understanding the limitations as outlined here. It *works,* but
+not really.
+
+### Possibile Future Attempt
+
+The query log (which is in `/etc/pihole/pihole-FTL.db`) is the one place we
+cannot share the file between nodes, but maybe sharing `/etc/pihole/gravity.db`
+is okay.
+
+If this could work, then the read-only nodes would need `SKIPGRAVITYONBOOT` set
+to `1` so that they don't automatically update the gravity db (which could be
+contentious). Running `pihole -g` will rebuild `gravity.db` any time it is run,
+so we never want this to run anywhere but the "primary" node.
+
+Each node definitely needs its own `pihole-FTL.db` file. Additional settings for
+the "HA" nodes:
+
+- `DBIMPORT=no` 
+- `BLOCK_IPV4=<LOADBALANCER_IP>` This is because IPs are hidden behind the LB.
+- 
+
 
 Credit for the initial build goes to [Heracles31 in the PiHole Discourse
 forums](https://discourse.pi-hole.net/t/pi-hole-high-availability-with-kubernetes/67505/4).
@@ -157,3 +193,7 @@ replicaset.apps/pihole-rw-557d57865c   1         1         1       69s
   `base/deployments/read-only/deployment.yaml`. This is because the local databases
   cannot be cleaned on the read-only system. Leaving them set at the default (365
   days) means they will never attempt to clean up.
+
+- Any changes to `/etc/dnsmasq.d/*.conf` on the read-write node must be accompanied
+  by `/usr/local/bin/pihole restartdns` on the read-only nodes in order to be
+  picked up on those nodes.

@@ -14,5 +14,5 @@ spec:
             - name: PIHOLE_DNS_
               value: "<ADD LOCAL or UPSTREAM DNS or comment these lines>"
             - name: DNSMASQ_LISTENING
-              value: all
+              value: single
             # Add any other env vars you may need

@@ -69,8 +69,8 @@ spec:
             - name: pihole-dnsm
               mountPath: /etc/dnsmasq.d
             - name: custom-dnsmasq
-              mountPath: /etc/dnsmasq.d/02-localdns.conf
-              subPath: 02-localdns.conf
+              mountPath: /etc/dnsmasq.d/02-mymasq.conf
+              subPath: 02-mymasq.conf
             - name: hugepage-2mi
               mountPath: /hugepages-2Mi
       volumes:
