@@ -1,0 +1,36 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pihole
+spec:
+  template:
+    spec:
+      containers:
+        - name: pihole
+          env:
+            - name: FTLCONF_LOCAL_IPV4
+              value: "<LOADBALANCER_IP>"  # Set to whatever you have for the LB IP
+            - name: PIHOLE_DNS_
+              value: "<ADD LOCAL or UPSTREAM DNS or comment these lines>"
+            - name: DNSMASQ_LISTENING
+              value: single
+            - name: BLOCK_IPV4
+              value: "<LOADBALANCER_IP>"  # Set to whatever you have for the LB IP
+            - name: FTLCONF_MAXDBDAYS
+              value: "90"  # Set to the number of days you want to keep in the query log
+            - name: FTLCONF_MAXNETAGE
+              value: "45"  
+            - name: FTLCONF_IGNORE_LOCALHOST
+              value: "yes"  # Necessary to keep the readinessProbe from spamming the query log
+            - name: PROXY_LOCATION
+              value: "<LOADBALANCER_IP>:80"  # Set to whatever you have for the LB IP
+            - name: VIRTUAL_HOST
+              value: "<PIHOLE-UI.EXAMPLE.COM>"  # Your FQDN for accessing the Pihole UI
+            - name: CORS_HOSTS
+              value: "<EXAMPLE.COM>"  # Ensure your internal hosts can visit the UI
+            - name: WEBLOGS_STDOUT
+              value: "1"  # This puts logs where kubectl logs <pod> can see them
+              # Add any other Environment variables and settings here
+           
+            

@@ -1,0 +1,22 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pihole-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: pihole-dc.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: pihole-tcp
+            port:
+              number: 80
+  tls:
+    - hosts: 
+      - "pihole-dc.example.com"
+      secretName: pihole-tls-secret
