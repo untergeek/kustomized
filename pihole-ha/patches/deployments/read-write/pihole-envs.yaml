@@ -11,20 +11,22 @@ spec:
           env:
             - name: FTLCONF_LOCAL_IPV4
               value: "<LOADBALANCER_IP>"
+            - name: PIHOLE_DNS_
+              value: "<ADD LOCAL or UPSTREAM DNS or comment these lines>"
+            - name: DNSMASQ_LISTENING
+              value: single
             - name: FTLCONF_MAXDBDAYS
               value: "90"
             - name: FTLCONF_MAXNETAGE
               value: "45"
+            - name: FTLCONF_IGNORE_LOCALHOST  # w/o this, the readinessProbe floods the query log with localhost
+              value: "yes"
             - name: PROXY_LOCATION
               value: "<LOADBALANCER_IP>:80"
             - name: VIRTUAL_HOST
               value: "<PIHOLE-UI.EXAMPLE.COM>"
             - name: CORS_HOSTS
               value: "<EXAMPLE.COM>"
-            - name: PIHOLE_DNS_
-              value: "<ADD LOCAL or UPSTREAM DNS or comment these lines>"
             - name: WEBLOGS_STDOUT  # This puts logs where kubectl logs <pod> can see them
               value: "1"
-            - name: DNSMASQ_LISTENING
-              value: all
             # Add any other env vars you may need
