@@ -1,0 +1,15 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: pihole-udp
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Cluster
+  selector:
+    app: pihole
+  ports: 
+    - protocol: UDP
+      port: 53
+      name: dnsudp
+      targetPort: 53

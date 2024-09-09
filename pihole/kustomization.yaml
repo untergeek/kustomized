@@ -1,0 +1,80 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - base/deployment.yaml
+  - base/services
+  - base/volumes
+  - base/ingress.yaml
+
+namespace: pihole-ha
+
+images:
+  - name: pihole/pihole
+    newTag: 2024.07.0
+
+configMapGenerator:
+  - name: pihole-custom-dnsmasq
+    behavior: replace
+    files:
+      - patches/volumes/02-mymasq.conf
+
+secretGenerator:
+- name: pihole-ui-secret
+  literals:
+  envs:
+  - .env.secret
+
+patches:
+# Volume settings:
+- patch: |-
+    - op: replace
+      path: "/spec/resources/requests/storage"
+      value: "10Gi"
+    - op: add
+      path: "/spec/storageClassName"
+      value: "<YOUR STORAGECLASS NAME>"
+  target:
+    kind: PersistentVolumeClaim
+    name: pvc-etc
+- patch: |-
+    - op: replace
+      path: "/spec/resources/requests/storage"
+      value: "10Mi"
+    - op: add
+      path: "/spec/storageClassName"
+      value: "<YOUR STORAGECLASS NAME>"
+  target:
+    kind: PersistentVolumeClaim
+    name: pvc-dnsmasq
+# Service settings:
+- patch:
+  path: patches/services/tcp.yaml
+- patch:
+  path: patches/services/udp.yaml
+# Ingress settings:
+- patch: |-
+    - op: replace
+      path: "/spec/rules/0/host"
+      value: "<PIHOLE-UI.EXAMPLE.COM>"
+    - op: replace
+      path: "/spec/tls/0/hosts/0"
+      value: "<PIHOLE-UI.EXAMPLE.COM>"
+    - op: replace
+      path: "/spec/tls/0/secretName"
+      value: "<YOUR_TLS_SECRET>"
+  target:
+    kind: Ingress
+    name: pihole-ingress
+# Deployment settings:
+- patch: |-
+    - op: replace
+      path: "/spec/template/spec/containers/0/env/0/value"
+      value: "<YOUR_TIMEZONE>"
+    - op: replace
+      path: "/spec/template/spec/containers/0/env/1/valueFrom/secretKeyRef/name"
+      value: "pihole-ui-secret"  # The name from the secretGenerator above
+  target:
+    kind: Deployment
+    name: pihole
+- patch:
+  path: patches/deployment.yaml
