@@ -4,4 +4,3 @@ kind: Kustomization
 resources:
   - configmap.yaml
   - etc-pvc.yaml
-  - masq-pvc.yaml
