@@ -1,0 +1,60 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    component: app
+  name: app
+spec:
+  selector:
+    matchLabels:
+      component: app
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        component: app
+    spec:
+      containers:
+        - image: nextcloud:29.0.5-apache
+          imagePullPolicy: IfNotPresent
+          name: app
+          ports:
+            - containerPort: 80
+          env:
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  key: MYSQL_DATABASE
+                  name: db-secrets
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: MYSQL_PASSWORD
+                  name: db-secrets
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  key: MYSQL_USER
+                  name: db-secrets
+            - name: MYSQL_HOST
+              value: db.default.svc.cluster.local
+            - name: REDIS_HOST
+              value: redis.default.svc.cluster.local
+          volumeMounts:
+            - mountPath: /var/www/html
+              name: app-persistent-storage
+      restartPolicy: Always
+      volumes:
+        - name: app-persistent-storage
+          persistentVolumeClaim:
+            claimName: app-pvc
+      initContainers:
+        - name: init-db
+          image: busybox:1.36.1
+          command: ['sh', '-c', "name=db; port=3306; ns () { echo $(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace) ; } ; check () { nc -w 1 $1.$(ns).svc.cluster.local $2 -e /bin/echo ; echo $? ; } ; until [ $(check $name $port) -eq 0 ]; do echo waiting for $name; sleep 1; done"]
+        - name: init-redis
+          image: busybox:1.36.1
+          command: ['sh', '-c', "name=redis; port=6379; ns () { echo $(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace) ; } ; check () { nc -w 1 $1.$(ns).svc.cluster.local $2 -e /bin/echo ; echo $? ; } ; until [ $(check $name $port) -eq 0 ]; do echo waiting for $name; sleep 1; done"]

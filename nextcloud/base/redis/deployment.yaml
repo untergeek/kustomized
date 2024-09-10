@@ -1,0 +1,31 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    component: redis
+  name: redis
+spec:
+  selector:
+    matchLabels:
+      component: redis
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        component: redis
+    spec:
+      containers:
+        - image: redis:7.4.0-alpine3.20
+          imagePullPolicy: IfNotPresent
+          name: redis
+          ports:
+            - containerPort: 6379
+          readinessProbe:
+            tcpSocket:
+              port: 6379
+            initialDelaySeconds: 5
+            periodSeconds: 2
+            successThreshold: 1
+            failureThreshold: 5
+      restartPolicy: Always
