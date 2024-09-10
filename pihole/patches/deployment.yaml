@@ -10,27 +10,100 @@ spec:
         - name: pihole
           env:
             - name: FTLCONF_LOCAL_IPV4
-              value: "<LOADBALANCER_IP>"  # Set to whatever you have for the LB IP
+              # The documentation says:
+              # "Set to your server's LAN IP, used by web block modes."
+              # For Kubernetes, this needs to be the value of your LoadBalancer IP
+              value: "<LOADBALANCER_IP>"
+            - name: BLOCKINGMODE
+              value: "NULL"
+              # Default. Available: IP-NODATA-AAAA, IP, NXDOMAIN, NODATA
+              # See https://docs.pi-hole.net/ftldns/blockingmode/
             - name: PIHOLE_DNS_
               value: "<ADD LOCAL or UPSTREAM DNS or comment these lines>"
+              # Upstream DNS server(s) for Pi-hole to forward queries to, separated
+              # by a semicolon.
+              # Also supports non-standard ports with #[port number] 
+              # e.g., 127.0.0.1#5053;8.8.8.8;8.8.4.4
             - name: DNSMASQ_LISTENING
+              # `single` listens only on the interface specified.
+              # `local` listens on all local subnets,
+              # `all` permits listening on internet origin subnets in addition to local 
+              # Should almost certainly always use `single` in Kubernetes
               value: single
             - name: BLOCK_IPV4
-              value: "<LOADBALANCER_IP>"  # Set to whatever you have for the LB IP
+              # By default, FTL determines the address of the interface a query
+              # arrived on and uses this address for replying to A queries with
+              # the most suitable address for the requesting client. This setting
+              # can be used to use a fixed, rather than the dynamically obtained,
+              # address
+              # As such, this should be set to the value of your LoadBalancer IP
+              value: "<LOADBALANCER_IP>"
             - name: FTLCONF_MAXDBDAYS
-              value: "90"  # Set to the number of days you want to keep in the query log
-            - name: FTLCONF_MAXNETAGE
-              value: "45"  
+              # How long should queries be stored in the database?
+              # Setting this to 0 disables the database
+              # Default: 365
+              value: "365"
+            - name: FTLCONF_MAXNETAGE  
+              # IP addresses (and associated host names) older than the specified
+              # number of days are removed to avoid dead entries in the network
+              # overview table. This setting defaults to the same value as MAXDBDAYS
+              # above but can be changed independently if needed.
+              # Default: Whatever MAXDBDAYS is set to
+              value: "365"
             - name: FTLCONF_IGNORE_LOCALHOST
-              value: "yes"  # Necessary to keep the readinessProbe from spamming the query log
+              # Ignore queries coming from the local machine?
+              # Since we have a readinessProbe querying every 5 seconds, this
+              # is necessary to prevent spamming the query log.
+              # Note: These probe queries will still appear in pihole.log
+              value: "yes"
+            - name: CUSTOM_CACHE_SIZE
+              # Set the cache size for dnsmasq. Useful for increasing the default
+              # cache size from 10000 or to set it to 0.
+              # Note that when DNSSEC is "true", then this setting is ignored.
+              # Default: 10000
+              value: "10000"
             - name: PROXY_LOCATION
-              value: "<LOADBALANCER_IP>:80"  # Set to whatever you have for the LB IP
+              # Where proxied requests are coming from.
+              # In our Kubernetes environment, this would normally be the Ingress IP,
+              # but in our case, our Ingress points to the TCP service, which is
+              # set to LoadBalancer IP. Since that is the "last hop" before the
+              # lighttpd web server on Pihole, this needs to be set to LoadBalancer IP
+              value: "<LOADBALANCER_IP>:80"
             - name: VIRTUAL_HOST
-              value: "<PIHOLE-UI.EXAMPLE.COM>"  # Your FQDN for accessing the Pihole UI
+              # What your web server 'virtual host' is.
+              # This FQDN should resolve to the LoadBalancer IP
+              value: "<PIHOLE-UI.EXAMPLE.COM>"
             - name: CORS_HOSTS
-              value: "<EXAMPLE.COM>"  # Ensure your internal hosts can visit the UI
+              # List of domains/subdomains on which CORS is allowed.
+              # Wildcards are not supported. 
+              # e.g., CORS_HOSTS: domain.com,home.domain.com,www.domain.com.
+              value: "<EXAMPLE.COM>"
             - name: WEBLOGS_STDOUT
-              value: "1"  # This puts logs where kubectl logs <pod> can see them
+              # 0 logs to defined files, 1 redirect access and error logs to stdout
+              # Since we're running in Kubernetes, we set this to 1 so we can easily
+              # read the lighttpd log files with:
+              # kubectl -n NAMESPACE logs PODNAME
+              value: "1"
+            - name: EDNS0_ECS
+              # Should we overwrite the query source when client information is
+              # provided through EDNS0 client subnet (ECS) information?
+              # This allows Pi-hole to obtain client IPs even if they are hidden
+              # behind the NAT of a router.
+              # Enabling this also requires two settings to be added to dnsmasq:
+              # add-mac
+              # add-subnet=32,128 
+              # These settings are already in 02-mymasq.conf, but are commented.
+              # TESTING: This is being tested to see if it passes through to Pi-hole.
+              # Default: "false"
+              value: "false"
+            - name: MOZILLA_CANARY
+              # Should Pi-hole always replies with NXDOMAIN to A and AAAA queries
+              # of use-application-dns.net to disable Firefox's automatic
+              # DNS-over-HTTP?
+              # This is following the recommendation on
+              # https://support.mozilla.org/en-US/kb/configuring-networks-disable-dns-over-https
+              # In short, if "true", this should prevent Firefox from trying to
+              # re-resolve hosts that Pi-hole blocked using DNS-over-HTTP
+              # Default: false
+              value: "false"
               # Add any other Environment variables and settings here
-           
-            
