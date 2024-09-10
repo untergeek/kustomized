@@ -79,14 +79,13 @@ value: "<YOUR STORAGECLASS NAME>"
 ```
 
 Replace this with whatever `StorageClassName` you are using for PVC claims. Also
-feel free to re-size the volumes. I doubt you'll need more than a mb or two for
-`pvc-dnsmasq`, as it only holds 1 file.
+feel free to re-size the volume.
 
-
-- `pvc-dnsmasq` is for `/etc/dnsmasq.d` which will probably never use the `10Mi` assigned.
 - `pvc-etc` is for `/etc/pihole`, which contains all of the data files for Pihole.
-  It will take 20Mi almost out of the box, so this defaults to `100Mi`, but you
-  may want more or less.
+  It will take 20Mi almost out of the box, and I've seen it balloon to an easy
+  200M on my side, so this defaults to `500Mi` in `base/volumes/pvc-etc.yaml`,
+  and in `kustomization.yaml` it is increased as an example to `1Gi`.
+  You may want more or less.
 
 #### Service Settings
 

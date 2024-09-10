@@ -1,12 +1,9 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - base/deployment.yaml
-  - base/services
-  - base/volumes
-  - base/ingress.yaml
+  - base
 
-namespace: pihole-ha
+namespace: pihole
 
 images:
   - name: pihole/pihole
@@ -29,23 +26,13 @@ patches:
 - patch: |-
     - op: replace
       path: "/spec/resources/requests/storage"
-      value: "10Gi"
+      value: "1Gi"
     - op: add
       path: "/spec/storageClassName"
       value: "<YOUR STORAGECLASS NAME>"
   target:
     kind: PersistentVolumeClaim
     name: pvc-etc
-- patch: |-
-    - op: replace
-      path: "/spec/resources/requests/storage"
-      value: "10Mi"
-    - op: add
-      path: "/spec/storageClassName"
-      value: "<YOUR STORAGECLASS NAME>"
-  target:
-    kind: PersistentVolumeClaim
-    name: pvc-dnsmasq
 # Service settings:
 - patch:
   path: patches/services/tcp.yaml
