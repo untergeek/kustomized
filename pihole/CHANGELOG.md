@@ -6,6 +6,11 @@
 
 Updated instructions and details to reflect other changes.
 
+### `base/services/tcp.yaml` & `base/services/udp.yaml`
+
+Changed `externalTrafficPolicy` to `Local` as we have only 1 pod, and would
+hopefully like to preserve the client IP address with this setting.
+
 ### `patches/deployment.yaml`
 
 #### Thoroughly documented all options
