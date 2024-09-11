@@ -1,0 +1,10 @@
+base_url: https://ntfy.example.com/
+enable_login: true
+auth_file: /var/cache/ntfy/auth.db
+auth_default_access: deny-all
+attachment-expiry-duration: 24h
+attachment-file-size-limit: 50M
+attachment_cache_dir: /var/cache/ntfy/attachments
+cache_file: /var/cache/ntfy/cache.db
+behind_proxy: true
+upstream-base-url: "https://ntfy.sh"

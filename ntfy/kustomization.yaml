@@ -1,0 +1,54 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - base
+#  - base/namespace.yaml
+
+# If you want to use a different namespace, set the value here. 
+# If you want to create the namespace, uncomment `- base/namespace.yaml` above,
+# and set `NEW VALUE` to the desired namespace value in the `Namespace setting`
+# patch area below as well. If you do this, don't forget to uncomment those lines
+# so they are processed.
+namespace: ntfy
+
+images:
+  - name: binwiederhier/ntfy
+    newTag: v2.11.0
+
+# Parse server.yml file contents into ConfigMap
+configMapGenerator:
+  - name: server-config
+    files: 
+      - patches/server.yml
+
+patches:
+# Namespace setting
+# - patch: |-
+#     - op: replace
+#       path: "/metadata/name"
+#       value: "NEW VALUE"
+#   target:
+#     kind: Namespace
+#     name: ntfy
+# PVC settings
+# - patch: |-
+#     - op: add
+#       path: "/spec/storageClassName"
+#       value: "<MY STORAGE CLASS>"
+#   target:
+#     kind: PersistentVolumeClaim
+#     name: app-pvc
+# Deployment settings
+- patch:
+  path: patches/deployment.yaml
+# Ingress settings:
+- patch: |-
+    - op: replace
+      path: "/spec/rules/0/host"
+      value: "<NTFY.EXAMPLE.COM>"
+  target:
+    kind: Ingress
+    name: ingress
+- patch:
+  path: patches/ingress.yaml

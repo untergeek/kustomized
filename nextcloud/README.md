@@ -5,11 +5,13 @@ Cron, and Redis. Based on the code found in [this article on
 Medium](https://medium.com/@acheaito/nextcloud-on-kubernetes-19658785b565)
 
 ## Requirements
+
 * A functional k8s cluster.
 * A kubernetes storage manager (I use [OpenEBS](https://www.openebs.io/)).
 * An Ingress provider (I use `ingress-nginx`, not to be confused with `nginx-ingress`)
 
 ## Deployment (without `overlays`)
+
 * Update `.env.secret` with values
   * These values will be used in various places, so this is mentioned first.
 * Update `kustomization.yaml` with changes

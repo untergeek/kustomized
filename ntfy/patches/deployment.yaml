@@ -1,0 +1,24 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+spec:
+  template:
+    spec:
+      containers:
+        - name: app 
+          env:
+            - name: TZ
+              value: America/Chicago
+            - name: NTFY_DEBUG
+              value: "false"
+            - name: NTFY_LOG_LEVEL
+              value: INFO
+          resources:
+            requests:
+              cpu: 150m
+              memory: 150Mi
+            limits:
+              memory: 300Mi
+              cpu:  200m
