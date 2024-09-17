@@ -1,0 +1,50 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - base/pool.yaml
+  - base/advertisements/l2/advertisement.yaml
+  # - base/advertisements/bgp/advertisement.yaml
+
+namespace: metallb-system  # Don't change this
+
+patches:
+## IPAddressPool
+- patch: |-
+    - op: replace
+      path: /metadata/name
+      value: mypool
+    - op: replace
+      path: /spec/addresses/0
+      value: "10.1.0.1-10.1.0.254"
+  target:
+    kind: IPAddressPool
+    name: pool
+## L2Advertisement
+- patch:
+  path: patches/advertisement.yaml
+- patch: |-
+    - op: replace
+      path: /metadata/name
+      value: my-l2-advertisement
+    - op: replace
+      path: /spec/ipAddressPools/0
+      value: "mypool"
+  target:
+    kind: L2Advertisement
+    name: l2-advertisement
+## BGPAdvertisement
+# - patch:
+#   path: patches/advertisement.yaml
+# - patch: |-
+#     - op: replace
+#       path: /metadata/name
+#       value: my-bgp-advertisement
+#     - op: replace
+#       path: /spec/ipAddressPools/0
+#       value: "mypool"
+#   target:
+#     kind: BGPAdvertisement
+#     name: bgp-advertisement
+
+# It is assumed that if you're using the BGPAdvertisement type, you know what to
+# do to edit the file in patches/advertisement.yaml accordingly.

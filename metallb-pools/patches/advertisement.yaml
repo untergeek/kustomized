@@ -1,0 +1,29 @@
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: l2-advertisement
+spec:
+  ipAddressPools:
+    - pool
+  # nodeSelectors:
+  #   - matchLabels:
+  #       kubernetes.io/hostname: MYNODE1
+  #   - matchLabels:
+  #       kubernetes.io/hostname: MYNODE2
+  #   - matchLabels:
+  #       kubernetes.io/hostname: MYNODE3
+  # interfaces:
+  #   - MY_IFACE_NAME
+
+# It is expected you will know what to configure here for yourself
+
+# If you're using BGPAdvertisement, then you will swap for this:
+# ---
+# apiVersion: metallb.io/v1beta1
+# kind: BGPAdvertisement
+# metadata:
+#   name: bgp-advertisement
+# spec:
+#   ipAddressPools:
+#     - pool
