@@ -1,0 +1,44 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - base
+
+commonLabels:
+  app: plex-media-server
+  name: mildenplex
+
+images:
+  - name: index.docker.io/plexinc/pms-docker
+    newTag: latest
+
+patches:
+# Volume settings
+## Config PV & PVC
+- patch:
+  path: patches/volumes/config/pv.yaml
+- patch:
+  path: patches/volumes/config/pvc.yaml
+## Storage PV & PVC
+- patch:
+  path: patches/volumes/storage/pv.yaml
+- patch:
+  path: patches/volumes/storage/pvc.yaml
+# StatefulSet settings
+- patch: |-
+    - op: replace
+      path: "/spec/template/spec/containers/0/env/0/value"
+      value: "https://plex.example.com"
+  target:
+    kind: StatefulSet
+    name: plex-app
+# Ingress settings:
+- patch: |-
+    - op: replace
+      path: "/spec/rules/0/host"
+      value: "<PLEX.EXAMPLE.COM>"
+  target:
+    kind: Ingress
+    name: ingress
+- patch:
+  path: patches/ingress.yaml

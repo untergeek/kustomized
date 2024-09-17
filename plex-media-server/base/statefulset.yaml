@@ -1,0 +1,62 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: plex-app
+spec:
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Retain
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      # app.kubernetes.io/instance: plex-app
+      app.kubernetes.io/name: plex-media-server
+  updateStrategy:
+    rollingUpdate:
+      partition: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: plex-media-server
+        app.kubernetes.io/name: plex-media-server
+    spec:
+      affinity: {}
+      containers:
+      - env:
+        - name: ADVERTISE_IP
+          value: http://plex.example.com
+        image: index.docker.io/plexinc/pms-docker:latest
+        imagePullPolicy: IfNotPresent
+        name: pms-app
+        ports:
+        - containerPort: 32400
+          name: pms
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /config
+          name: pms-config
+        - mountPath: /transcode
+          name: pms-transcode
+        - mountPath: /plex
+          name: pms-media
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 120
+      volumes:
+      - name: pms-config
+        persistentVolumeClaim:
+          claimName: pms-config-pvc
+      - name: pms-transcode
+        emptyDir: {}
+      - name: pms-media
+        persistentVolumeClaim:
+          claimName: pms-media-pvc

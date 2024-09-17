@@ -1,0 +1,56 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base
+
+commonLabels:
+  app: plex-media-server
+  name: mildenplex
+
+namespace: plex
+
+images:
+  - name: index.docker.io/plexinc/pms-docker
+    newTag: latest
+
+patches:
+# Volume settings
+## Config PV & PVC
+- patch:
+  path: patches/volumes/config/pv.yaml
+- patch:
+  path: patches/volumes/config/pvc.yaml
+## Storage PV & PVC
+- patch:
+  path: patches/volumes/storage/pv.yaml
+- patch:
+  path: patches/volumes/storage/pvc.yaml
+# StatefulSet settings
+- patch: |-
+    - op: replace
+      path: "/spec/template/spec/containers/0/env/0/value"
+      value: "https://complectogram.untergeek.net"
+    - op: add
+      path: "/spec/template/spec/containers/0/env/-"
+      value:
+        name: PLEX_UID
+        value: "972"
+    - op: add
+      path: "/spec/template/spec/containers/0/env/-"
+      value:
+        name: PLEX_GID
+        value: "972"
+  target:
+    kind: StatefulSet
+    name: plex-app
+# Ingress settings:
+- patch: |-
+    - op: replace
+      path: "/spec/rules/0/host"
+      value: "complectogram.untergeek.net"
+  target:
+    kind: Ingress
+    name: ingress
+- patch:
+  path: patches/ingress.yaml

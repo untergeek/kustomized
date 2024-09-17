@@ -1,0 +1,13 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pms-media-pv
+spec:
+  capacity:
+    storage: 1Ti
+  accessModes:
+    - ReadOnlyMany
+  nfs:
+    server: nfs-server.default.svc.cluster.local
+    path: "/"
