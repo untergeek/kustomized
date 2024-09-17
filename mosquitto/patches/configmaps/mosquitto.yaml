@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mosquitto
+
+data:
+  mosquitto.conf: |
+    listener 1883 0.0.0.0
+    protocol mqtt
+    log_dest stdout
+
+    persistence true
+    persistence_file persistence.db
+    persistence_location /mosquitto/data
+
+    password_file /mosquitto/config/password.txt
+    acl_file /mosquitto/config/acl.txt
+
+## Add any configuration changes as appropriate. If you plan on running MQTTS, add the following:
+#    listener 1883 0.0.0.0
+#    cafile /etc/ssl/certs/ca-certificates.crt
+#    keyfile /mosquitto/certs/tls.key
+#    certfile /mosquitto/certs/tls.crt
+## Edit & uncomments sections of kustomization.yaml and the associated patches:
+# patches/statefulset/mqtts.yaml: Uncomment and configure the secret

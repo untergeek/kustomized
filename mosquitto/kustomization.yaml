@@ -1,0 +1,50 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - base
+
+namespace: mosquitto
+
+images:
+  - name: eclipse-mosquitto
+    newTag: 2.0.18
+
+patches:
+### StatefulSet
+## volumeClaimTemplates settings
+# - patch: |-
+#     - op: add
+#       path: /spec/volumeClaimTemplates/0/spec/storageClassName
+#       value: MYSTORAGECLASS
+#     - op: replace
+#       path: /spec/volumeClaimTemplates/0/spec/resources/requests/storage
+#       value: 1Gi  # This is already the default
+#   target:
+#     kind: StatefulSet
+#     name: mosquitto
+## MQTTS port and TLS cert settings -- Needed if you plan on using MQTTS.
+## Update patches/configmaps/mosquitto.yaml accordingly
+## Also update the MQTTS -op section in the mqtt service settings below.
+# - patch:
+#   path: patches/statefulset/mqtts.yaml
+#   target:
+#     kind: StatefulSet
+#     name: mosquitto
+### Services
+## mqtt settings
+# - patch: |-
+#   target:
+#     kind: Service
+#     name: mqtt
+#     - op: add
+#       path: /metadata/annotations/metallb.universe.tf~1loadBalancerIPs
+#       value: "MY DESIRED LOADBALANCER IP"
+##### Only uncomment the following -op section if you're planning on using MQTTS as well.
+##### Update patches/configmaps/mosquitto.yaml and patches/statefulset/mqtts.yaml accordingly
+#     - op: add
+#       path: /spec/ports/-
+#       value:
+#         name: mqtts
+#         port: 8883
+#         targetPort: 8883
+
