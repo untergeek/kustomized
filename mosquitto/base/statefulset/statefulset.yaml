@@ -1,0 +1,67 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mosquitto
+  annotations:
+    revision: 2
+spec:
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Retain
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mosquitto
+  updateStrategy:
+    rollingUpdate:
+      partition: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: mosquitto
+    spec:
+      securityContext:
+        runAsUser: 1883
+        runAsGroup: 1883
+        fsGroup: 1883
+      containers:
+        - name: mosquitto
+          image: eclipse-mosquitto:2.0.18
+          ports:
+            - name: mqtt-port
+              containerPort: 1883
+          volumeMounts:
+            - name: mosquitto-data
+              mountPath: /mosquitto/data
+            - name: mosquitto-conf
+              mountPath: /mosquitto/config/mosquitto.conf
+              subPath: mosquitto.conf
+            - name: mosquitto-pwd
+              mountPath: /mosquitto/config/password.txt
+              subPath: password.txt
+            - name: mosquitto-acl
+              mountPath: /mosquitto/config/acl.txt
+              subPath: acl.txt
+      volumes:
+        - name: mosquitto-conf
+          configMap:
+            name: mosquitto
+            defaultMode: 0640
+        - name: mosquitto-pwd
+          configMap:
+            name: password
+            defaultMode: 0640
+        - name: mosquitto-acl
+          configMap:
+            name: acl
+            defaultMode: 0640
+  volumeClaimTemplates:
+    - metadata:
+        name: mosquitto-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 1Gi

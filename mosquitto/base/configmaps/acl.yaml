@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: acl
+
+data:
+  acl.txt: |
+    topic read $SYS/#
+
+    # This affects all clients.
+    pattern write $SYS/broker/connection/%c/state
+
+    user mosquitto
+    topic readwrite #

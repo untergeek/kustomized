@@ -1,0 +1,20 @@
+# ---
+# apiVersion: apps/v1
+# kind: StatefulSet
+# metadata:
+#   name: mosquitto
+# spec:
+#   template:
+#     spec:
+#       containers:
+#         - name: mosquitto
+#           ports:
+#             - name: mqtts-port
+#               containerPort: 8883
+#           volumeMounts:
+#             - name: mosquitto-certs
+#               mountPath: /mosquitto/certs
+#       volumes:
+#         - name: mosquitto-certs
+#           secret:
+#             secretName: MYSECRET
