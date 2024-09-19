@@ -1,0 +1,118 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: zigbee2mqtt
+  annotations:
+    revision: 2
+spec:
+  # These lines preserve the PVC even if you delete the StatefulSet
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Retain
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zigbee2mqtt
+  updateStrategy:
+    rollingUpdate:
+      partition: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: zigbee2mqtt
+    spec:
+      initContainers:
+        # This initContainer copies the data from the ConfigMap to where it belongs
+        # in the volumeMount, which is then used by our StatefulSet. It will ONLY
+        # copy if there is not already a configuration.yaml in that location,
+        # ensuring that any changes persist, since zigbee2mqtt can and will
+        # edit/update configuration.yaml. That's why this is a StatefulSet with
+        # a fully retained PVC, rather than a stateless Deployment.
+        - name: init-configuration
+          image: busybox:1.36
+          # F is for source Filename, D is for Destination file.
+          command: ["sh", "-c", "F=configuration.yaml; D=/app/data/${F}; echo begin; if [ ! -f $D ]; then echo $D not found; cat /${F} > $D; echo >> $D; echo copied $F with contents: ; cat $D ; fi; echo done"]
+          volumeMounts:
+            - name: z2m-data
+              mountPath: "/app/data"
+            - name: z2m-config
+              mountPath: "/configuration.yaml"
+              subPath: configuration.yaml
+        - name: init-secret
+          image: busybox:1.36
+          env:
+            - name: NETWORK_KEY
+              value: "[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]"
+          # F is for source Filename, D is for Destination file.
+          command: ["sh", "-c", "F=secret.yaml; D=/app/data/${F}; echo begin; echo creating $D; echo network_key: $NETWORK_KEY > $D; echo >> $D; sed -i -e s/\\'//g ${D}; echo created $F with contents: ; cat $D; echo done"]
+          volumeMounts:
+            - name: z2m-data
+              mountPath: "/app/data"
+      containers:
+        - name: zigbee2mqtt
+          image: koenkk/zigbee2mqtt:1.40.1
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            # This is required for access to USB devices
+            privileged: true
+          env:
+            # All other env vars are added/modified in patches/statefulset/settings.yaml
+            # or via `- op: add` in kustomization.yaml
+            - name: TZ
+              value: UTC
+          ports:
+            - name: frontend
+              containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            - name: z2m-data
+              mountPath: /app/data
+            ## These mountPaths are to be added in patches/statefulset/settings.yaml
+            # - name: z2m-udev
+            #   mountPath: /run/udev
+            # - name: zigbee-device
+            #   mountPath: /dev/ttyACM0
+          # livenessProbe does not start until startupProbe has completed
+          # Probe every second. 15 failures is enough to say we're not alive.
+          livenessProbe:
+            tcpSocket:
+              port: frontend
+            failureThreshold: 15
+            periodSeconds: 1
+          # readinessProbe does not start until startupProbe has completed
+          # Probe every second. 7 failures is enough to say we're not ready
+          readinessProbe:
+            tcpSocket:
+              port: frontend
+            failureThreshold: 7
+            periodSeconds: 1
+          # Try every second for 90 seconds.
+          startupProbe:
+            tcpSocket:
+              port: frontend
+            failureThreshold: 90
+            initialDelaySeconds: 1
+            periodSeconds: 1
+      volumes:
+        - name: z2m-config
+          configMap:
+            name: z2m-configmap
+        ## These volumes are to be added in patches/statefulset/settings.yaml
+        # - name: z2m-udev
+        #   hostPath:
+        #     path: /run/udev
+        # - name: zigbee-device
+        #   hostPath:
+        #     path: /dev/ttyACM0
+  # Modification of this should be done in patches/statefulset/settings.yaml
+  # or in kustomization.yaml via `- op:` patches. 
+  volumeClaimTemplates:
+    - metadata:
+        name: z2m-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 100Mi
