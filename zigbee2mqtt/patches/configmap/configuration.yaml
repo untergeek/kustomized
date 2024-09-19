@@ -1,0 +1,78 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: z2m-configmap
+data:
+  configuration.yaml: |-
+    permit_join: false
+
+    frontend:
+      port: 8080
+
+    mqtt:
+      client_id: MY_CLIENT_ID
+
+    advanced:
+      pan_id: GENERATE
+      ext_pan_id: GENERATE
+      network_key: '!secret network_key'
+      channel: 15
+      log_output:
+        - console
+
+    devices: devices.yaml
+    groups: groups.yaml
+
+# Many settings that would normally go here are being set via environment variables!
+#
+# The initContainer will only copy this data once, and then edits have to be made
+# by zigbee2mqtt, or manually. As such, the GENERATE lines will only run once
+# during the initial start up. These values will be replaced in the resulting
+# configuration. If you ever need to fully recreate this config with existing
+# values, save the config file somewhere and put those values in their expected
+# locations in this file.
+#
+# homeassistant
+#   legacy_entity_attributes: false
+#   legacy_triggers: false
+#     These are NOT the default values. If you are using a much older version of
+#     HomeAssistant, you may want to remove these lines and accept the defaults.
+#
+# mqtt:
+#   client_id: MY_CLIENT_ID
+#     You could accept the default here, but if you will have multiple zigbee2mqtt
+#     instances, you may want them to have deliberate, unique names.
+#
+# advanced:
+#    channel: 15 -- Considered the safest for North America. Set for your region.
+#
+#    network_key: PLACEHOLDER
+#      TL;DR - Don't change this except to replace it with an actual known value.
+#              We create secret.yaml with the appropriate value in an init-container,
+#              extracted from our secretGenerator. Otherwise, you should keep your
+#              real value in .env.secret and trust the PLACEHOLDER replacement.
+#
+#      Longer explanation:
+#
+#      There is secret sauce going on here. I initially tried to make this work
+#      with just an environment variable in the patch file. However, because this
+#      was a string value that needed to be seen as an array of integers, it would
+#      not work. Even writing a secret.yaml file and using '!secret network_key'
+#      failed. For some reason, even though the config file is accurate, and the
+#      secret.yaml, it put it inside the single quotes, and fails.
+#      The solution is a `sed` command with an environment variable to replace
+#      PLACEHOLDER.
+#      
+#    log_output:
+#      - console
+#
+#        Apparently only array values for `log_output` are acceptable.
+#        `console` is the best option for k8s.
+#        We can use `kubectl -n NAMESPACE logs z2m-data-zigbee2mqtt-0` this way.
+#
+# devices: devices.yaml
+# groups: groups.yaml
+#
+#   These lines ensure that device info and group info are in their own files.
+#   This will keep the configuration.yaml much more clean and readable.

@@ -1,0 +1,30 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: z2m-configmap
+data:
+  configuration.yaml: |-
+    permit_join: false
+
+    frontend:
+      port: 8080
+
+    advanced:
+      pan_id: GENERATE
+      ext_pan_id: GENERATE
+      network_key: '!secret network_key'
+      channel: 15
+      log_output:
+        - console
+
+    devices: devices.yaml
+    groups: groups.yaml
+
+# Many settings that would normally go here are being set via environment variable!
+#
+# Any changes to this should be made in:
+#
+#     patches/configmap/configuration.yaml
+#
+# which should be applied via kustomization.yaml
