@@ -1,6 +1,6 @@
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: pihole
 spec:
@@ -9,6 +9,9 @@ spec:
       containers:
         - name: pihole
           env:
+            - name: TZ
+              # Change to match your canonical time zone, e.g. America/Chicago
+              value: "UTC"
             - name: FTLCONF_LOCAL_IPV4
               # The documentation says:
               # "Set to your server's LAN IP, used by web block modes."
@@ -107,3 +110,14 @@ spec:
               # Default: false
               value: "false"
               # Add any other Environment variables and settings here
+  # If you need to manually specify a different storageClassName, or tweak the
+  # storage size, this is where you'd do that.
+  volumeClaimTemplates:
+    - metadata:
+        name: pihole-etc
+      spec:
+        # storageClassName: MY_STORAGECLASSNAME
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 500Mi

@@ -2,7 +2,7 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: pihole-tcp
+  name: tcp-svc
 spec:
   type: LoadBalancer
   externalTrafficPolicy: Local

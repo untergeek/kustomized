@@ -2,8 +2,10 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: pihole-tcp
+  name: udp-svc
   annotations:
     metallb.universe.tf/allow-shared-ip: key-to-share-<LOADBALANCER_IP>
 spec:
   loadBalancerIP: <LOADBALANCER_IP>
+
+# If you are not using metallb, remove the annotation.
