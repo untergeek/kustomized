@@ -18,7 +18,7 @@
 
 ## Deployment (without `overlays`)
 
-### Edit `patches/configmaps/*.yaml`
+### Edit `patches/configmap/*.yaml`
 
 The following ConfigMaps need to be updated to suit your needs.
 
@@ -49,7 +49,7 @@ the bottom, such as MQTTS and certificates:
 #    keyfile /mosquitto/certs/tls.key
 #    certfile /mosquitto/certs/tls.crt
 ## Edit & uncomments sections of kustomization.yaml and the associated patches:
-# patches/statefulset/mqtts.yaml: Uncomment and configure the secret
+# patches/statefulset/settings.yaml: Uncomment and configure the secret
 ```
 
 As stated, you will need to enable MQTTS in the `kustomization.yaml` file by
@@ -68,7 +68,7 @@ data:
 # Add/remove any password lines as appropriate. Generate a file using mosquitto_passwd
 ```
 
-This mirrors the `base/configmaps/acl.yaml` default. You should replace the provided
+This mirrors the `base/configmap/acl.yaml` default. You should replace the provided
 `mosquitto:` line with your own password contents, preserving the proper indentation.
 
 #### `acl.yaml`
@@ -122,16 +122,16 @@ If you plan on using TLS certificates, you'll need to uncomment this `- patch:` 
 
 ```
 ## MQTTS port and TLS cert settings -- Needed if you plan on using MQTTS.
-## Update patches/configmaps/mosquitto.yaml accordingly
+## Update patches/configmap/mosquitto.yaml accordingly
 ## Also update the MQTTS -op section in the mqtt service settings below.
 # - patch:
-#   path: patches/statefulset/mqtts.yaml
+#   path: patches/statefulset/settings.yaml
 #   target:
 #     kind: StatefulSet
 #     name: mosquitto
 ```
 
-You will also need to edit `patches/statefulset/mqtts.yaml` to set the `secret`:
+You will also need to edit `patches/statefulset/settings.yaml` to set the `secret`:
 
 ```
 secretName: MYSECRET
@@ -161,7 +161,7 @@ If you plan on using TLS certificates and MQTTS, you'll need to uncomment this
 
 ```
 ##### Only uncomment the following -op section if you're planning on using MQTTS as well.
-##### Update patches/configmaps/mosquitto.yaml and patches/statefulset/mqtts.yaml accordingly
+##### Update patches/configmap/mosquitto.yaml and patches/statefulset/settings.yaml accordingly
 #     - op: add
 #       path: /spec/ports/-
 #       value:
