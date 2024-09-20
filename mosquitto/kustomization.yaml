@@ -10,6 +10,17 @@ images:
     newTag: 2.0.18
 
 patches:
+## ConfigMaps 
+## Uncomment if you edit any of these from the default
+# mosquitto
+# - patch:
+#   path: patches/configmap/mosquitto.yaml
+# password
+# - patch:
+#   path: patches/configmap/password.yaml
+# acl
+# - patch:
+#   path: patches/configmap/acl.yaml
 ### StatefulSet
 ## volumeClaimTemplates settings
 # - patch: |-
@@ -23,14 +34,14 @@ patches:
 #     kind: StatefulSet
 #     name: mosquitto
 ## MQTTS port and TLS cert settings -- Needed if you plan on using MQTTS.
-## Update patches/configmaps/mosquitto.yaml accordingly
+## Update patches/configmap/mosquitto.yaml accordingly
 ## Also update the MQTTS -op section in the mqtt service settings below.
 # - patch:
-#   path: patches/statefulset/mqtts.yaml
+#   path: patches/statefulset/settings.yaml
 #   target:
 #     kind: StatefulSet
 #     name: mosquitto
-### Services
+### Service
 ## mqtt settings
 # - patch: |-
 #   target:
@@ -40,7 +51,7 @@ patches:
 #       path: /metadata/annotations/metallb.universe.tf~1loadBalancerIPs
 #       value: "MY DESIRED LOADBALANCER IP"
 ##### Only uncomment the following -op section if you're planning on using MQTTS as well.
-##### Update patches/configmaps/mosquitto.yaml and patches/statefulset/mqtts.yaml accordingly
+##### Update patches/configmap/mosquitto.yaml and patches/statefulset/settings.yaml accordingly
 #     - op: add
 #       path: /spec/ports/-
 #       value:
