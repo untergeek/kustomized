@@ -22,4 +22,4 @@ data:
 #    keyfile /mosquitto/certs/tls.key
 #    certfile /mosquitto/certs/tls.crt
 ## Edit & uncomments sections of kustomization.yaml and the associated patches:
-# patches/statefulset/mqtts.yaml: Uncomment and configure the secret
+# patches/statefulset/settings.yaml: Uncomment and configure the secret
