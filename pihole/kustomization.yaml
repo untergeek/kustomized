@@ -10,58 +10,43 @@ images:
     newTag: 2024.07.0
 
 configMapGenerator:
-  - name: pihole-custom-dnsmasq
+  - name: custom-dnsmasq
     behavior: replace
     files:
-      - patches/volumes/02-mymasq.conf
+      - patches/configmap/02-mymasq.conf
 
 secretGenerator:
-- name: pihole-ui-secret
+- name: ui-secret
   literals:
   envs:
   - .env.secret
 
 patches:
-# Volume settings:
+### StatefulSet settings:
 - patch: |-
     - op: replace
-      path: "/spec/resources/requests/storage"
-      value: "1Gi"
-    - op: add
-      path: "/spec/storageClassName"
-      value: "<YOUR STORAGECLASS NAME>"
+      path: "/spec/template/spec/containers/0/env/1/valueFrom/secretKeyRef/name"
+      value: "ui-secret"  # The name from the secretGenerator above
   target:
-    kind: PersistentVolumeClaim
-    name: pvc-etc
-# Service settings:
+    kind: StatefulSet
+    name: pihole
+##
+## Edit patches/statefulset/settings.yaml for ALL OTHER SETTINGS
 - patch:
-  path: patches/services/tcp.yaml
+  path: patches/statefulset/settings.yaml
+### Service settings:
 - patch:
-  path: patches/services/udp.yaml
-# Ingress settings:
+  path: patches/service/tcp/settings.yaml
+- patch:
+  path: patches/service/udp/settings.yaml
+## Ingress settings:
 - patch: |-
     - op: replace
       path: "/spec/rules/0/host"
-      value: "<PIHOLE-UI.EXAMPLE.COM>"
-    - op: replace
-      path: "/spec/tls/0/hosts/0"
-      value: "<PIHOLE-UI.EXAMPLE.COM>"
-    - op: replace
-      path: "/spec/tls/0/secretName"
-      value: "<YOUR_TLS_SECRET>"
+      value: "<PIHOLE-UI.EXAMPLE.COM>"  # Replace with your FQDN
   target:
     kind: Ingress
-    name: pihole-ingress
-# Deployment settings:
-- patch: |-
-    - op: replace
-      path: "/spec/template/spec/containers/0/env/0/value"
-      value: "<YOUR_TIMEZONE>"
-    - op: replace
-      path: "/spec/template/spec/containers/0/env/1/valueFrom/secretKeyRef/name"
-      value: "pihole-ui-secret"  # The name from the secretGenerator above
-  target:
-    kind: Deployment
-    name: pihole
-- patch:
-  path: patches/deployment.yaml
+    name: ingress
+# Uncomment if you plan to enable TLS encryption on your Ingress
+# - patch:
+#   path: patches/ingress/settings.yaml
