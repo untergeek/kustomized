@@ -1,13 +1,13 @@
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
-  name: app
+  name: ntfy
 spec:
   template:
     spec:
       containers:
-        - name: app 
+        - name: ntfy 
           env:
             - name: TZ
               value: America/Chicago
@@ -22,3 +22,11 @@ spec:
             limits:
               memory: 300Mi
               cpu:  200m
+  volumeClaimTemplates:
+    - metadata:
+        name: cache
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 500Mi
