@@ -1,17 +1,22 @@
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   labels:
     app: pihole
   name: pihole
 spec:
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Retain
   replicas: 1
   selector:
     matchLabels:
       app: pihole
-  strategy:
-    type: Recreate
+  updateStrategy:
+    rollingUpdate:
+      partition: 0
+    type: RollingUpdate
   template:
     metadata:
       labels:
@@ -72,9 +77,6 @@ spec:
             - name: hugepage-2mi
               mountPath: /hugepages-2Mi
       volumes:
-        - name: pihole-etc
-          persistentVolumeClaim:
-            claimName: pvc-etc
         - name: custom-dnsmasq
           configMap:
             defaultMode: 420
@@ -82,3 +84,11 @@ spec:
         - name: hugepage-2mi
           emptyDir:
             medium: HugePages-2Mi
+  volumeClaimTemplates:
+    - metadata:
+        name: pihole-etc
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 500Mi

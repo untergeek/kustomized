@@ -1,5 +1,60 @@
 # CHANGELOG
 
+## 2024-09-20
+
+A push to normalize the file structures among these different projects has meant
+some changes happened. A few names were changed, but very little else is different
+other than the change from a Deployment to a StatefulSet.
+
+### `README.md` 
+
+Updated instructions and details to reflect these changes.
+
+Match the other projects by describing deployment with and without `overlays`.
+
+### `base`
+
+#### `configmap`
+
+The `02-mymasq.conf` ConfigMap has been moved here.
+
+#### `ingress`
+
+The Ingress definition manifest has been moved here.
+
+#### `service`
+
+The Service definitions for the TCP and UDP services have been moved to sub-directories
+here.
+
+#### `statefulset`
+
+The former Deployment has been recreated as a StatefulSet in order to have the
+configuration be retained, even if the StatefulSet is deleted. This beats having
+to re-upload and apply your backups each time you blast away the Deployment.
+
+### `patches`
+
+#### `configmap`
+
+The `02-mymasq.conf` patch file has been moved here.
+
+#### `ingress`
+
+The Ingress `settings.yaml` file has been added. It will currently only apply
+the TLS settings.
+
+#### `service`
+
+The former `tcp.yaml` and `udp.yaml` patch files have been relocated to `tcp`
+and `udp` subdirectories here, each with its own `settings.yaml` file.
+
+#### `statefulset`
+
+The `settings.yaml` file here supersedes the old `deployment.yaml` patch file.
+In addition to setting the same environment variables as before, it also has the
+storage settings at the bottom of the file.
+
 ## 2024-09-10
 
 ### `README.md`

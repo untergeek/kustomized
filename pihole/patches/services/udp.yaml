@@ -1,9 +1,0 @@
----
-kind: Service
-apiVersion: v1
-metadata:
-  name: pihole-udp
-  annotations:
-    metallb.universe.tf/allow-shared-ip: key-to-share-<LOADBALANCER_IP>
-spec:
-  loadBalancerIP: <LOADBALANCER_IP>

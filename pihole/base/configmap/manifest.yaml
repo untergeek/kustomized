@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: pihole-custom-dnsmasq
+  name: custom-dnsmasq
 data:
   02-mymasq.conf: |-
     #

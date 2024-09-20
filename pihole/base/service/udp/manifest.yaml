@@ -2,7 +2,7 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: pihole-udp
+  name: udp-svc
 spec:
   type: LoadBalancer
   externalTrafficPolicy: Local
