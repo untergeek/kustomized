@@ -337,3 +337,215 @@ Be sure to use a unique domain name for every instance you deploy.
 * Run the following command to build and deploy:
 
   `kubectl apply -k overlays/NAME`
+
+## Backup and Restore of your zigbee2mqtt data
+
+Since this is a StatefulSet, the Persistent Volume should not be deleted in the
+event that you delete your StatefulSet. This is a deliberate choice. You should
+be able to backup or restore settings to this volume so long as it exists.
+
+Unless you've modified the `base` configuration, the pod name should _always_ be
+`zigbee2mqtt-0`. If you've modified the StatefulSet and chosen a different container
+name, then it will be that value followed by a `-0`. For the sake of continuity,
+this guide assumes that the pod name is `zigbee2mqtt-0`.
+
+### Command Structure
+
+#### Backup
+
+This isn't backup so much as it is, "copy files from the volume attached to the pod."
+
+The format of the command is:
+
+```
+kubectl -n NAMESPACE cp PODNAME:/PATH/TO/SOURCE /PATH/TO/DESTINATION
+```
+
+where
+
+* `NAMESPACE` is the namespace where `PODNAME` is running
+* `PODNAME` is the name of the pod
+* `/PATH/TO/SOURCE` is the path to the source directory (or specific file) on
+  the pod.
+* `/PATH/TO/DESTINATION` is the local path where you want the entire source
+  directory, or the specific file to go.
+
+#### Restore
+
+This isn't restore so much as it is, "copy files to the volume attached to the pod."
+
+The format of the command is:
+
+```
+kubectl -n NAMESPACE cp /PATH/TO/SOURCE PODNAME:/PATH/TO/DESTINATION
+```
+
+where
+
+* `NAMESPACE` is the namespace where `PODNAME` is running
+* `PODNAME` is the name of the pod
+* `/PATH/TO/SOURCE` is the path to the local directory (or specific file) to be
+  copied to the pod.
+* `/PATH/TO/DESTINATION` is the target path on the pod where you want the entire
+  source directory (or specific file) to go.
+
+### Backup
+
+Backup can be done while the `zigbee2mqtt-0` pod is running. In fact, you cannot
+backup data from the volume _unless_ it is attached to a pod.
+
+#### Full directory backup
+
+Using the defaults, our command might look like this (also creating the destination):
+
+```
+OUTPUT=./dump; \
+mkdir -p $OUTPUT; \
+kubectl -n zigbee2mqtt cp zigbee2mqtt-0:/app/data $OUTPUT
+```
+
+If we do this on a running system, the contents of `./dump` would look like:
+
+```
+$ ls -1 ./dump
+configuration.yaml
+coordinator_backup.json
+database.db
+devices.yaml
+groups.yaml
+secret.yaml
+state.json
+```
+
+#### Single file backup
+
+Using the defaults, our command might look like this:
+
+```
+FILENAME=configuration.yaml; \
+kubectl -n zigbee2mqtt cp zigbee2mqtt-0:/app/data/$FILENAME $FILENAME.bak
+```
+
+This will copy `configuration.yaml` from the pod to `configuration.yaml.bak` in
+the present working directory.
+
+### Restore
+
+**NOTE:** You should never attempt to restore data to this volume while it is
+attached to the `zigbee2mqtt-0` pod. It is a running system, and overwriting or
+changing files will undoubtedly lead to bad outcomes.
+
+1. Ensure that the StatefulSet is not running.
+2. Prepare the `mount_pvc.yaml` manifest in the same path as this README to mount
+   the PVC in a separate pod. You shouldn't have to modify anything unless you have
+   changed from the default in `base`.
+3. Apply the manifest, manually specifying the `namespace`:
+
+   ```
+   kubectl -n NAMESPACE apply -f mount_pvc.yaml
+   ```
+
+4. Ensure the pod is live, and connect to it:
+
+   ```
+   kubectl -n NAMESPACE exec mount-pvc -ti -- ls /app/data
+   ```
+
+   This should show the contents of the PVC are in the exact same mount point as
+   they would be in the StatefulSet pod.
+
+At this point you can either copy an entire file over, or a full directory. The
+procedure is slightly different for the full directory, so that will follow the
+single file copy example.
+
+#### Copy a single file
+
+Using the defaults, our command might look like this:
+
+```
+kubectl -n NAMESPACE cp SOURCEFILE mount-pvc:/app/data/DESTFILE
+```
+
+This does allow for file renaming. For example:
+
+```
+kubectl -n NAMESPACE cp configuration.yaml.bak \
+    mount-pvc:/app/data/configuration.yaml
+```
+
+This will overwrite the existing `configuration.yaml`.
+
+#### Copy a whole directory
+
+This is trickier since you can't use the contents of an entire directory as the
+SOURCEFILE. The command won't accept `PATH/*` arguments. And just setting `PATH`
+or `PATH/` will copy `PATH` to the `DESTINATION` such that you will have
+`DESTINATION/PATH` instead of the contents of `PATH` being at `DESTINATION`.
+
+The way around this is using tar streams. It's not as daunting as it sounds.
+
+1. Navigate into the directory containing the contents you want to restore. You
+   must be at the root of the path whose contents will be at `DESTINATION`, in
+   our case, `/app/data` on the pod. If you don't, you'll end up copying whatever
+   is in the directory you are in.
+2. The command is this:
+
+   ```
+   tar cf - . | kubectl -n NAMESPACE exec mount-pvc -i -- tar xf - -C /app/data
+   ```
+
+Let's break that down a bit.
+
+* `tar cf - .` captures the present working directory, `.` as a tar stream, which
+  is piped to:
+* `kubectl`
+  * `-n NAMESPACE` (our namespace)
+  * `exec` (going to execute a command on a pod)
+  * `mount-pvc` (the pod name)
+  * `-i` (the execution will be interactive [the stream])
+  * `--` (`kubectl` now requires this to mean everything that follows will be
+    part of the command and arguments to be executed in the pod)
+  * `tar xf - -C /app/data` (extract the tar stream contents into `/app/data`)
+
+I ran a few experiments and this will overwrite existing files on the pod.
+
+You can now verify what's in the volume:
+
+* `ls`:
+
+  ```
+  kubectl -n NAMESPACE exec mount-pvc -ti -- ls -l /app/data
+  # ... ls output follows
+  ```
+
+* `cat`:
+
+  ```
+  kubectl -n NAMESPACE exec mount-pvc -ti -- cat /app/data/FILENAME
+  # ... contents of FILENAME follow
+  ```
+
+#### Post-restore cleanup
+
+At this point, you know you've restored things, so you need to delete the
+`mount-pvc` pod by deleting the manifest:
+
+```
+kubectl -n NAMESPACE delete -f mount_pvc.yaml
+```
+
+This will delete the `mount-pvc` pod, but will leave the volume intact.
+
+You can now recreate your zigbee2mqtt StatefulSet, and it will use the files
+you restored as configuration data. Since we had to delete the StatefulSet in
+order to stop the pod to do the file restore, we need to re-apply our Kustomization:
+
+```
+kubectl apply -k .
+```
+
+or
+
+```
+kubectl apply -k overlays/NAME
+```

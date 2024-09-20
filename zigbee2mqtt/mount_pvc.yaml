@@ -1,0 +1,19 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mount-pvc
+spec:
+  containers:
+  - name: mount-pvc
+    image: busybox:1.36
+    volumeMounts:
+    - name: data
+      mountPath: /app/data
+    command: ["sleep"]
+    args:
+      - "3600"
+  volumes:
+  - name: data
+    persistentVolumeClaim:
+      claimName: z2m-data-zigbee2mqtt-0
