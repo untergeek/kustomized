@@ -21,4 +21,4 @@ secretGenerator:
 - name: kustom-secret
   literals:
   envs:
-  - .env.secret
+  - .env.secretbase
