@@ -14,14 +14,14 @@ spec:
   selector:
     matchLabels:
       app: ntfy
-  template:
-    metadata:
-      labels:
-        app: ntfy
   updateStrategy:
     rollingUpdate:
       partition: 0
     type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: ntfy
     spec:
       containers:
         - name: ntfy 
