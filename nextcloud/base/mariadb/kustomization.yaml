@@ -4,5 +4,4 @@ kind: Kustomization
 resources:
   - deployment
   - pvc
-  - secret
   - service

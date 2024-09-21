@@ -3,25 +3,22 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: nextcloud
 
-commonLabels:
-  app: nextcloud
-  version: "29"
-
 resources:
   - redis
   - mariadb
   - nextcloud
   - cron
-  # - external
 
-patches:
-- patch: |-
-    - op: replace
-      path: "/spec/template/spec/containers/0/env/3/value"
-      value: "db.nextcloud.svc.cluster.local"
-    - op: replace
-      path: "/spec/template/spec/containers/0/env/4/value"
-      value: "redis.nextcloud.svc.cluster.local"
-  target:
-    kind: Deployment
-    name: app
+images:
+  - name: nextcloud
+    newTag: 29.0.7-apache
+  - name: redis
+    newTag: 7.4.0-alpine3.20
+  - name: mariadb
+    newTag: "11.5.2"
+
+secretGenerator:
+- name: kustom-secret
+  literals:
+  envs:
+  - .env.secret
