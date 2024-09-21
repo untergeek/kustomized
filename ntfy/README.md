@@ -7,71 +7,26 @@ Hopefully this makes it simple for you!
 ## Requirements:
 
 * A functional k8s cluster.
+* A dedicated namespace for this project (default is `ntfy`).
 * An Ingress provider (I use `ingress-nginx`, not to be confused with `nginx-ingress`)
-* [OPTIONAL] If you plan on securing your ntfy server with TLS encryption, you
-  need to either create a TLS secret before hand, or modify `patches/ingress.yaml`
-  to do the Let's Encrypt part for you automatically.
 
-## Configuration:
+## Optional
+
+* A TLS secret suitable for an Ingress route. If you plan on securing your ntfy
+  server with TLS encryption, you need to either create a TLS secret before hand,
+  or modify `patches/ingress/settings.yaml` to do the Let's Encrypt part for you
+  automatically.
+
+## Deployment (without `overlays`)
 
 ### `kustomization.yaml`:
 
-#### Namespace:
+#### Namespace
 
-You can use the default namespace, `ntfy`, or change to use your own.
+You can use the default namespace, `ntfy`, or change to use your own. In either
+case, the namespace must be created before deployment.
 
-For example, to use the namespace `myntfy`, edit and replace `ntfy` here:
-
-```
-namespace: ntfy
-```
-
-so it becomes:
-
-```
-namespace: myntfy
-```
-
-You will also need to uncomment `- base/namespace.yaml` in the `resources` section:
-
-```
-resources:
-  - base
-#  - base/namespace.yaml
-```
-
-will become:
-
-```
-resources:
-  - base
-  - base/namespace.yaml
-```
-
-And then edit the `Namespace setting` section and replace `NEW VALUE`
-in `patches:` so that
-
-```
-Namespace setting
-- patch: |-
-    - op: replace
-      path: "/metadata/name"
-      value: "NEW VALUE"
-  target:
-    kind: Namespace
-    name: ntfy
-```
-
-replace `NEW VALUE` with `myntfy`:
-
-```
-      value: "myntfy"
-```
-
-Note that this section is commented by default. You will need to uncomment it to
-change the namespace.
-
-#### Images:
+#### Images
 
 Currently, the most recent release is `v2.11.0`. To run a different release, replace
 `v2.11.0` with the desired tag.
@@ -82,7 +37,7 @@ images:
     newTag: v2.11.0
 ```
 
-#### Ingress settings:
+#### Ingress settings
 
 Replace `<NTFY.EXAMPLE.COM>` with the FQDN you plan to use.
 
@@ -99,12 +54,14 @@ Replace `<NTFY.EXAMPLE.COM>` with the FQDN you plan to use.
 
 ### Patch files:
 
-#### `patches/deployment.yaml`:
+#### `patches/statefulset/settings.yaml`:
 
-Update/Add any environment variables you may need. You can also update the resource
-settings.
+Update/Add any environment variables you may need.
 
-#### `patches/ingress.yaml`:
+You can also update the resource settings, and the volume storage settings at the
+bottom of the file.
+
+#### `patches/ingress/settings.yaml`:
 
 To use TLS to secure your traffic, replace `NTFY.EXAMPLE.COM` with the FQDN you
 plan to use.
@@ -122,11 +79,11 @@ account and can share secrets across namespaces.
       secretName: <MY_TLS_SECRET>
 ```
 
-### `patches/server.yml`:
+### `patches/configmap/server.yml`:
 
 This file will be used to create a ConfigMap that will be mounted as
 `/etc/ntfy/server.yml`, and contains the settings used to configure ntfy. At the
-very least, you should edit `patches/server.yml` and configure:
+very least, you should edit `patches/configmap/server.yml` and configure:
 
 ```
 base_url: https://ntfy.example.com/
@@ -135,3 +92,48 @@ base_url: https://ntfy.example.com/
 which should be the FQDN you set in your Ingress.
 
 Any other settings are at your discretion.
+
+### Test
+
+* (Optional) To preview generated configuration before deploying:
+
+  `kubectl kustomize .`
+
+### Apply
+
+* Run the following command to build and deploy:
+
+  `kubectl apply -k .`
+
+## Deployment using `overlays`
+
+### Copy the basic structure to each `overlay`
+
+* Copy `kustomization.yaml`, and the various `patches/*` files to `overlays/NAME`,
+  or whatever directory structure you prefer.
+* Each `overlays/NAME` should have its own `kustomization.yaml` and `patches`
+  subdirectory.
+* Be sure to update the `resources` section of `kustomization.yaml` to be able to
+  reach the `base` directory:
+
+  ```
+  resources:
+    - ../../base
+  ```
+
+### Edit each `overlay` path accordingly
+
+Apply the same configuration steps as above for each `overlay/NAME` path you
+create.
+
+### Test
+
+* (Optional) To preview generated configuration before deploying:
+
+  `kubectl kustomize overlays/NAME`
+
+### Apply
+
+* Run the following command to build and deploy:
+
+  `kubectl apply -k overlays/NAME`

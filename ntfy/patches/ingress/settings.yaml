@@ -8,3 +8,6 @@ spec:
     - hosts:
       - "NTFY.EXAMPLE.COM"
       secretName: <MY_TLS_SECRET>
+
+# Replace <NTFY.EXAMPLE.COM> with your FQDN
+# Replace <MY_TLS_SECRET> with your premade TLS secret (must be in same namespace)

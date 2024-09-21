@@ -1,23 +1,30 @@
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
-  name: app
+  name: ntfy
   labels:
-    component: app
+    app: ntfy
 spec:
-  revisionHistoryLimit: 1
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Retain
+  revisionHistoryLimit: 2
   replicas: 1
   selector:
     matchLabels:
-      component: app
+      app: ntfy
+  updateStrategy:
+    rollingUpdate:
+      partition: 0
+    type: RollingUpdate
   template:
     metadata:
       labels:
-        component: app
+        app: ntfy
     spec:
       containers:
-        - name: app 
+        - name: ntfy 
           image: binwiederhier/ntfy:v2.11.0
           args: ["serve"]
           ports: 
@@ -27,12 +34,16 @@ spec:
               subPath: server.yml
               name: config-volume
             - mountPath: /var/cache/ntfy
-              name: cache-volume
+              name: cache
       volumes:
         - name: config-volume
           configMap:
             name: server-config
-        - name: cache-volume
-          persistentVolumeClaim:
-            claimName: app-pvc
-
+  volumeClaimTemplates:
+    - metadata:
+        name: cache
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 500Mi
