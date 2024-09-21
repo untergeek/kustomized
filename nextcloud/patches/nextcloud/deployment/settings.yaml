@@ -1,0 +1,103 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+spec:
+  template:
+    spec:
+      containers:
+          env:
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  key: MYSQL_DATABASE
+                  name: kustom-secret
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: MYSQL_PASSWORD
+                  name: kustom-secret
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  key: MYSQL_USER
+                  name: kustom-secret
+            - name: MYSQL_HOST
+              # replace NAMESPACE with your own
+              value: db.NAMESPACE.svc.cluster.local
+            - name: REDIS_HOST
+              # replace NAMESPACE with your own
+              value: redis.NAMESPACE.svc.cluster.local
+            - name: OVERWRITECLIURL
+              # replace NEXTCLOUD.EXAMPLE.COM with your FQDN
+              value: <https://NEXTCLOUD.EXAMPLE.COM>
+            - name: OVERWRITEPROTOCOL
+              value: https
+            - name: NEXTCLOUD_ADMIN_USER
+              value: admin
+            - name: NEXTCLOUD_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: NEXTCLOUD_ADMIN_PASSWORD
+                  name: kustom-secret
+            - name: NEXTCLOUD_TRUSTED_DOMAINS
+              # replace NEXTCLOUD.EXAMPLE.COM with your FQDN
+              value: localhost app.nextcloud.svc.cluster.local ingress-nginx-controller.ingress-nginx.svc.cluster.local
+                NEXTCLOUD.EXAMPLE.COM
+            - name: NEXTCLOUD_INIT_HTACCESS
+              value: "true"
+            ## Uncomment and configure .env.secret to enable SMTP
+            # - name: SMTP_HOST
+            #   valueFrom:
+            #     secretKeyRef:
+            #       key: SMTP_HOST
+            #       name: kustom-secret
+            # - name: SMTP_SECURE
+            #   value: tls
+            # - name: SMTP_PORT
+            #   value: "465"
+            # - name: SMTP_NAME
+            #   valueFrom:
+            #     secretKeyRef:
+            #       key: SMTP_NAME
+            #       name: kustom-secret
+            # - name: SMTP_PASSWORD
+            #   valueFrom:
+            #     secretKeyRef:
+            #       key: SMTP_PASSWORD
+            #       name: kustom-secret
+            # - name: MAIL_FROM_ADDRESS
+            #   valueFrom:
+            #     secretKeyRef:
+            #       key: MAIL_FROM_ADDRESS
+            #       name: kustom-secret
+            # - name: MAIL_DOMAIN
+            #   valueFrom:
+            #     secretKeyRef:
+            #       key: MAIL_DOMAIN
+            #       name: kustom-secret
+          volumeMounts:
+            - mountPath: /var/www/html
+              name: app-persistent-storage
+            ## Uncomment and configure to establish an extra, external storage
+            ## Must also set external-pvc below
+            # - mountPath: </PATH/TO/MOUNT>
+            #   name: external-persistent-storage
+          ## Uncomment and configure to set resource limits
+          # resources:
+          #   requests:
+          #     cpu: 1000m
+          #     memory: 2Gi
+          #   limits:
+          #     cpu: 2000m
+          #     memory: 4Gi
+      volumes:
+        - name: app-persistent-storage
+          persistentVolumeClaim:
+            claimName: app-pvc
+        ## Uncomment and configure to establish an extra, external storage
+        ## Must also set volumeMount above
+        # - name: external-persistent-storage
+        #   persistentVolumeClaim:
+        #     claimName: external-pvc
