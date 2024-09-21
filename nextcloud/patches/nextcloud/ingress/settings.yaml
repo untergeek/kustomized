@@ -35,7 +35,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: HOST.EXAMPLE.COM
+  - host: NEXTCLOUD.EXAMPLE.COM
     http:
       paths:
       - path: /
@@ -47,5 +47,5 @@ spec:
               number: 80
   tls:
     - hosts:
-      - "HOST.EXAMPLE.COM"
-      secretName: my-tls-secret
+      - "NEXTCLOUD.EXAMPLE.COM"
+      secretName: <MY_TLS_SECRET>
