@@ -56,19 +56,19 @@ patches:
 ## VOLUMES:
 ### PVs (need to add NFS storage volume before the PVC)
 - patch:
-  path: patches/volumes/pv.yaml
+  path: patches/nextcloud/pv/settings.yaml
 # Only uncomment if resources base/external is also uncommented above
 # - patch:
-#   path: patches/volumes/external-pv.yaml
+#   path: patches/external/pv/settings.yaml
 ### PVCs:
 - patch:
-  path: patches/volumes/pvc.yaml
+  path: patches/nextcloud/pvc/settings.yaml
 # Only uncomment if resources base/external is also uncommented above
 # - patch:
-#   path: patches/volumes/external-pvc.yaml
+#   path: patches/external/pvc/settings.yaml
 ## INGRESS:
 - patch:
-  path: patches/ingress.yaml
+  path: patches/nextcloud/ingress/settings.yaml
 ## DEPLOYMENT:
 - patch: |-
     - op: replace
