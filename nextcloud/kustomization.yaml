@@ -37,17 +37,15 @@ patches:
     kind: PersistentVolumeClaim
     name: db-pvc
 # NEXTCLOUD
-## STORAGE
-### PVs (need to add NFS storage volume before the PVC)
+## App storage
 - patch:
   path: patches/nextcloud/pv/settings.yaml
-# Only uncomment if resources base/external is also uncommented above
-# - patch:
-#   path: patches/external/pv/settings.yaml
-### PVCs
 - patch:
   path: patches/nextcloud/pvc/settings.yaml
-# Only uncomment if resources base/external is also uncommented above
+## External storage
+## Only uncomment if base/external is also uncommented in the resources block.
+# - patch:
+#   path: patches/external/pv/settings.yaml
 # - patch:
 #   path: patches/external/pvc/settings.yaml
 ## INGRESS
