@@ -15,11 +15,10 @@ This is hopefully a quick way to get a fully functional Pi-hole instance running
 
 ### Optional
 
-* A TLS secret suitable for an Ingress route. It will work the same way (mine does).
-  This will enable you to do MQTTS. If you plan on securing your zigbee2mqtt
-  frontend with TLS encryption, you need to either create a TLS secret before
-  hand, or modify `patches/ingress/settings.yaml` to do the Let's Encrypt part
-  for you automatically.
+* A TLS secret suitable for an Ingress route. If you plan on securing your Pi-hole
+  server with TLS encryption, you need to either create a TLS secret before hand,
+  or modify `patches/ingress/settings.yaml` to do the Let's Encrypt part for you
+  automatically.
 
 ## Deployment (without `overlays`)
 
