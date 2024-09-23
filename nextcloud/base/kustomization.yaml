@@ -1,21 +1,12 @@
 ---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: nextcloud
 
 resources:
   - redis
   - mariadb
   - nextcloud
   - cron
-
-images:
-  - name: nextcloud
-    newTag: 29.0.7-apache
-  - name: redis
-    newTag: 7.4.0-alpine3.20
-  - name: mariadb
-    newTag: "11.5.2"
 
 secretGenerator:
 - name: kustom-secret
