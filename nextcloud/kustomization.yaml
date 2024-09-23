@@ -5,7 +5,6 @@ namespace: nextcloud
 
 commonLabels:
   app: nextcloud
-  version: "29"
 
 resources:
   - base
@@ -13,29 +12,38 @@ resources:
 
 images:
   - name: nextcloud
-    newTag: 29.0.7-apache
+    newTag: 30.0.0-apache
   - name: redis
     newTag: 7.4.0-alpine3.20
   - name: mariadb
-    newTag: "11.5.2"
+    newTag: lts-noble  # For lts-noble, imagePullPolicy has been set to Always
 
 secretGenerator:
 - name: kustom-secret
-  behavior: replace
+  behavior: replace  # This must be 'replace' as we have it also set in `base`
   literals:
   envs:
   - .env.secret
 
 patches:
 # MariaDB patches
-## Storage
 - patch: |-
+    ## Storage
     - op: replace
-      path: "/spec/resources/requests/storage"
-      value: "10Gi"
+      path: /spec/volumeClaimTemplates/0/spec/resources/requests/storage
+      value: 10Gi
+    ## Uncomment and add a value if you need to define a storageClassName
+    # - op: add
+    #   path: /spec/volumeClaimTemplates/0/spec/storageClassName
+    #   value: ""
+    ## StatefulSet
+    ## Uncomment this to make it pull the latest lts-noble image Always
+    # - op: replace
+    #   path: /spec/template/spec/containers/0/imagePullPolicy
+    #   value: Always
   target:
-    kind: PersistentVolumeClaim
-    name: db-pvc
+    kind: StatefulSet
+    name: db
 # NEXTCLOUD
 ## App storage
 - patch:
