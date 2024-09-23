@@ -1,0 +1,46 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - base
+
+namespace: <REVERSE-PROXY>
+## Also change <REVERSE-PROXY> in namespace patch below to match this value
+
+images:
+  - name: nginx
+    newTag: alpine
+
+configMapGenerator:
+  - name: nginx-main
+    behavior: replace
+    files:
+      - patches/configmap/nginx.conf
+  - name: nginx-webserver
+    behavior: replace
+    files:
+      - patches/configmap/default.conf
+
+patches:
+## Namespace settings
+## Change <REVERSE-PROXY> to match whatever you put in namespace above
+- patch: |-
+    - op: replace
+      path: /metadata/name
+      value: <REVERSE-PROXY>
+  target:
+    kind: Namespace
+    name: reverse-proxy
+## Deployment settings (resource limits)
+- patch:
+  path: patches/deployment/settings.yaml
+## Ingress settings
+- patch: |-
+    - op: replace
+      path: "/spec/rules/0/host"
+      value: "<REVERSE.EXAMPLE.COM>"  # Replace with your FQDN
+  target:
+    kind: Ingress
+    name: ingress
+# Uncomment if you plan to enable TLS encryption on your Ingress
+# - patch:
+#   path: patches/ingress/settings.yaml
