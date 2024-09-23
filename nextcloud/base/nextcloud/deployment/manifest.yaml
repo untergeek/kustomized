@@ -18,7 +18,7 @@ spec:
         component: app
     spec:
       containers:
-        - image: nextcloud:29.0.7-apache
+        - image: nextcloud:30.0.0-apache
           imagePullPolicy: IfNotPresent
           name: app
           ports:
