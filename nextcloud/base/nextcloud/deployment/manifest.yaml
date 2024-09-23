@@ -18,7 +18,7 @@ spec:
         component: app
     spec:
       containers:
-        - image: nextcloud:29.0.5-apache
+        - image: nextcloud:30.0.0-apache
           imagePullPolicy: IfNotPresent
           name: app
           ports:
@@ -28,17 +28,17 @@ spec:
               valueFrom:
                 secretKeyRef:
                   key: MYSQL_DATABASE
-                  name: db-secrets
+                  name: kustom-secret
             - name: MYSQL_PASSWORD
               valueFrom:
                 secretKeyRef:
                   key: MYSQL_PASSWORD
-                  name: db-secrets
+                  name: kustom-secret
             - name: MYSQL_USER
               valueFrom:
                 secretKeyRef:
                   key: MYSQL_USER
-                  name: db-secrets
+                  name: kustom-secret
             - name: MYSQL_HOST
               value: db.default.svc.cluster.local
             - name: REDIS_HOST

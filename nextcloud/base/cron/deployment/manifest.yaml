@@ -18,7 +18,7 @@ spec:
         app: cron
     spec:
       containers:
-        - image: nextcloud:29.0.5-apache
+        - image: nextcloud:29.0.7-apache
           imagePullPolicy: IfNotPresent
           name: cron
           command:

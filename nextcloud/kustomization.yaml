@@ -5,7 +5,6 @@ namespace: nextcloud
 
 commonLabels:
   app: nextcloud
-  version: "29"
 
 resources:
   - base
@@ -13,178 +12,53 @@ resources:
 
 images:
   - name: nextcloud
-    newTag: 29.0.5-apache
+    newTag: 30.0.0-apache
   - name: redis
     newTag: 7.4.0-alpine3.20
   - name: mariadb
-    newTag: "11.5.2"
+    newTag: lts-noble  # For lts-noble, imagePullPolicy has been set to Always
 
 secretGenerator:
 - name: kustom-secret
+  behavior: replace  # This must be 'replace' as we have it also set in `base`
   literals:
   envs:
   - .env.secret
 
 patches:
 # MariaDB patches
-## PVC
 - patch: |-
+    ## Storage
     - op: replace
-      path: "/spec/resources/requests/storage"
-      value: "10Gi"
+      path: /spec/volumeClaimTemplates/0/spec/resources/requests/storage
+      value: 10Gi
+    ## Uncomment and add a value if you need to define a storageClassName
+    # - op: add
+    #   path: /spec/volumeClaimTemplates/0/spec/storageClassName
+    #   value: ""
+    ## StatefulSet
+    ## Uncomment this to make it pull the latest lts-noble image Always
+    # - op: replace
+    #   path: /spec/template/spec/containers/0/imagePullPolicy
+    #   value: Always
   target:
-    kind: PersistentVolumeClaim
-    name: db-pvc
-## DEPLOYMENT
-- patch: |-
-    - op: replace
-      path: "/spec/template/spec/containers/0/env/0/valueFrom/secretKeyRef/name"
-      value: "kustom-secret"
-    - op: replace
-      path: "/spec/template/spec/containers/0/env/1/valueFrom/secretKeyRef/name"
-      value: "kustom-secret"
-    - op: replace
-      path: "/spec/template/spec/containers/0/env/2/valueFrom/secretKeyRef/name"
-      value: "kustom-secret"
-    - op: replace
-      path: "/spec/template/spec/containers/0/env/3/valueFrom/secretKeyRef/name"
-      value: "kustom-secret"
-  target:
-    kind: Deployment
+    kind: StatefulSet
     name: db
 # NEXTCLOUD
-## VOLUMES:
-### PVs (need to add NFS storage volume before the PVC)
+## App storage
 - patch:
-  path: patches/volumes/pv.yaml
-# Only uncomment if resources base/external is also uncommented above
+  path: patches/nextcloud/pv/settings.yaml
+- patch:
+  path: patches/nextcloud/pvc/settings.yaml
+## External storage
+## Only uncomment if base/external is also uncommented in the resources block.
 # - patch:
-#   path: patches/volumes/external-pv.yaml
-### PVCs:
-- patch:
-  path: patches/volumes/pvc.yaml
-# Only uncomment if resources base/external is also uncommented above
+#   path: patches/external/pv/settings.yaml
 # - patch:
-#   path: patches/volumes/external-pvc.yaml
-## INGRESS:
+#   path: patches/external/pvc/settings.yaml
+## INGRESS
 - patch:
-  path: patches/ingress.yaml
-## DEPLOYMENT:
-- patch: |-
-    - op: replace
-      path: "/spec/template/spec/containers/0/env/0/valueFrom/secretKeyRef/name"
-      value: "kustom-secret"
-    - op: replace
-      path: "/spec/template/spec/containers/0/env/1/valueFrom/secretKeyRef/name"
-      value: "kustom-secret"
-    - op: replace
-      path: "/spec/template/spec/containers/0/env/2/valueFrom/secretKeyRef/name"
-      value: "kustom-secret"
-    - op: replace
-      path: "/spec/template/spec/containers/0/env/3/value"
-      value: "db.NAMESPACE.svc.cluster.local"
-    - op: replace
-      path: "/spec/template/spec/containers/0/env/4/value"
-      value: "redis.NAMESPACE.svc.cluster.local"
-    # Only uncomment if you also uncomment resources base/external above
-    #    - op: add
-    #      path: "/spec/template/spec/containers/0/volumeMounts/-"
-    #      value:
-    #        name: "external-persistent-storage"
-    #        mountPath: "/plex"
-    #    - op: add
-    #      path: "/spec/template/spec/volumes/-"
-    #      value:
-    #        name: "external-persistent-storage"
-    #        persistentVolumeClaim:
-    #          claimName: "external-pvc"
-    - op: add
-      path: "/spec/template/spec/containers/0/env/-"
-      value:
-        name: "OVERWRITECLIURL"
-        value: "https://HOST.EXAMPLE.COM"
-    - op: add
-      path: "/spec/template/spec/containers/0/env/-"
-      value:
-        name: "OVERWRITEPROTOCOL"
-        value: "https"
-    - op: add
-      path: "/spec/template/spec/containers/0/env/-"
-      value:
-        name: "NEXTCLOUD_ADMIN_USER"
-        value: "admin"
-    - op: add
-      path: "/spec/template/spec/containers/0/env/-"
-      value:
-        name: "NEXTCLOUD_ADMIN_PASSWORD"
-        valueFrom:
-          secretKeyRef:
-            key: "NEXTCLOUD_ADMIN_PASSWORD"
-            name: "kustom-secret"
-    - op: add
-      path: "/spec/template/spec/containers/0/env/-"
-      value:
-        name: "NEXTCLOUD_TRUSTED_DOMAINS"
-        # You can provide multiple, space separated values.
-        # At the very least, ensure you have localhost and HOST.EXAMPLE.COM
-        # Replace NAMESPACE with whatever you specified at the top of this document
-        # Replace NGINX-INGRESS-NAMESPACE with whatever namespace Nginx Ingress is in
-        value: "localhost app.NAMESPACE.svc.cluster.local ingress-nginx-controller.NGINX-INGRESS-NAMESPACE.svc.cluster.local HOST.EXAMPLE.COM"
-    - op: add
-      path: "/spec/template/spec/containers/0/env/-"
-      value:
-        name: "NEXTCLOUD_INIT_HTACCESS"
-        value: "true"
-    - op: add
-      path: "/spec/template/spec/containers/0/env/-"
-      value:
-        name: "SMTP_HOST"
-        valueFrom:
-          secretKeyRef:
-            key: "SMTP_HOST"
-            name: "kustom-secret"
-    - op: add
-      path: "/spec/template/spec/containers/0/env/-"
-      value:
-        name: "SMTP_SECURE"
-        value: "tls"
-    - op: add
-      path: "/spec/template/spec/containers/0/env/-"
-      value:
-        name: "SMTP_PORT"
-        value: "465"
-    - op: add
-      path: "/spec/template/spec/containers/0/env/-"
-      value:
-        name: "SMTP_NAME"
-        valueFrom:
-          secretKeyRef:
-            key: "SMTP_NAME"
-            name: "kustom-secret"
-    - op: add
-      path: "/spec/template/spec/containers/0/env/-"
-      value:
-        name: "SMTP_PASSWORD"
-        valueFrom:
-          secretKeyRef:
-            key: "SMTP_PASSWORD"
-            name: "kustom-secret"
-    - op: add
-      path: "/spec/template/spec/containers/0/env/-"
-      value:
-        name: "MAIL_FROM_ADDRESS"
-        valueFrom:
-          secretKeyRef:
-            key: "MAIL_FROM_ADDRESS"
-            name: "kustom-secret"
-    - op: add
-      path: "/spec/template/spec/containers/0/env/-"
-      value:
-        name: "MAIL_DOMAIN"
-        valueFrom:
-          secretKeyRef:
-            key: "MAIL_DOMAIN"
-            name: "kustom-secret"
-  target:
-    kind: Deployment
-    name: app
+  path: patches/nextcloud/ingress/settings.yaml
+## DEPLOYMENT
+- patch:
+  path: patches/nextcloud/deployment/settings.yaml

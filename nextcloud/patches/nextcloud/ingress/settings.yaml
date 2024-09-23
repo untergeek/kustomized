@@ -5,9 +5,6 @@ metadata:
   name: ingress
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: 4G
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "360"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "360"
-    nginx.ingress.kubernetes.io/proxy-connect-timeout: "360"
     nginx.ingress.kubernetes.io/server-snippet: |-
       server_tokens off;
       proxy_hide_header X-Powered-By;
@@ -35,7 +32,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: HOST.EXAMPLE.COM
+  - host: NEXTCLOUD.EXAMPLE.COM
     http:
       paths:
       - path: /
@@ -47,5 +44,5 @@ spec:
               number: 80
   tls:
     - hosts:
-      - "HOST.EXAMPLE.COM"
-      secretName: my-tls-secret
+      - "NEXTCLOUD.EXAMPLE.COM"
+      secretName: <MY_TLS_SECRET>
