@@ -1,17 +1,22 @@
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   labels:
     component: db
   name: db
 spec:
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Retain
+  replicas: 1
+  updateStrategy:
+    rollingUpdate:
+      partition: 0
+    type: RollingUpdate
   selector:
     matchLabels:
       component: db
-  replicas: 1
-  strategy:
-    type: Recreate
   template:
     metadata:
       labels:
@@ -19,7 +24,7 @@ spec:
     spec:
       containers:
         - name: db
-          image: mariadb:11.5.2
+          image: mariadb:lts-noble
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3306
@@ -57,9 +62,12 @@ spec:
                   name: kustom-secret
           volumeMounts:
             - mountPath: /var/lib/mysql
-              name: db-persistent-storage
-      restartPolicy: Always
-      volumes:
-        - name: db-persistent-storage
-          persistentVolumeClaim:
-            claimName: db-pvc
+              name: mariadb
+  volumeClaimTemplates:
+    - metadata:
+        name: mariadb
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 5Gi
