@@ -1,0 +1,91 @@
+---
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.environment
+  targets:
+    - select:
+        kind: StatefulSet
+        name: ntfy
+      fieldPaths:
+        - spec.template.spec.containers.[name=ntfy].env.[name=NODE_ENV].value
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.timezone
+  targets:
+    - select:
+        kind: StatefulSet
+        name: ntfy
+      fieldPaths:
+        - spec.template.spec.containers.[name=ntfy].env.[name=TZ].value
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.debug
+  targets:
+    - select:
+        kind: StatefulSet
+        name: ntfy
+      fieldPaths:
+        - spec.template.spec.containers.[name=ntfy].env.[name=NTFY_DEBUG].value
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.log_level
+  targets:
+    - select:
+        kind: StatefulSet
+        name: ntfy
+      fieldPaths:
+        - spec.template.spec.containers.[name=ntfy].env.[name=NTFY_LOG_LEVEL].value
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.requests_cpu
+  targets:
+    - select:
+        kind: StatefulSet
+        name: ntfy
+      fieldPaths:
+        - spec.template.spec.containers.[name=ntfy].resources.requests.cpu
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.requests_mem
+  targets:
+    - select:
+        kind: StatefulSet
+        name: ntfy
+      fieldPaths:
+        - spec.template.spec.containers.[name=ntfy].resources.requests.memory
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.limits_cpu
+  targets:
+    - select:
+        kind: StatefulSet
+        name: ntfy
+      fieldPaths:
+        - spec.template.spec.containers.[name=ntfy].resources.limits.cpu
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.limits_mem
+  targets:
+    - select:
+        kind: StatefulSet
+        name: ntfy
+      fieldPaths:
+        - spec.template.spec.containers.[name=ntfy].resources.limits.memory
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.storage_size
+  targets:
+    - select:
+        kind: StatefulSet
+        name: ntfy
+      fieldPaths:
+        - spec.volumeClaimTemplates.0.spec.resources.requests.storage

@@ -1,0 +1,21 @@
+---
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.otel_endpoint
+  targets:
+    - select:
+        kind: StatefulSet
+        name: ntfy
+      fieldPaths:
+        - spec.template.spec.containers.[name=autoinstrumentation-go].env.[name=OTEL_EXPORTER_OTLP_ENDPOINT].value
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.otel_service_name
+  targets:
+    - select:
+        kind: StatefulSet
+        name: ntfy
+      fieldPaths:
+        - spec.template.spec.containers.[name=autoinstrumentation-go].env.[name=OTEL_SERVICE_NAME].value

@@ -1,0 +1,27 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+# KUSTOMIZE values replaced by values in settings/config.properties as noted in comments
+metadata:
+  name: ntfy
+spec:
+  template:
+    spec:
+      shareProcessNamespace: true
+      containers:
+        - name: ntfy
+        - name: autoinstrumentation-go
+          image: otel/autoinstrumentation-go
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: OTEL_GO_AUTO_TARGET_EXE
+              value: /usr/bin/ntfy
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              # otel_endpoint
+              value: KUSTOMIZE
+            - name: OTEL_SERVICE_NAME
+              # otel_service_name
+              value: KUSTOMIZE
+          securityContext:
+            runAsUser: 0
+            privileged: true

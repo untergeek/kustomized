@@ -4,10 +4,8 @@ kind: Service
 metadata:
   name: webapp 
   labels:
-    app: ntfy
+    app.kubernetes.io/component: web
 spec:
   type: ClusterIP
-  selector:
-    app: ntfy
   ports:
     - port: 80

@@ -1,19 +1,17 @@
 ---
 apiVersion: apps/v1
 kind: StatefulSet
+# KUSTOMIZE values replaced by values in settings/config.properties as noted in comments
 metadata:
   name: ntfy
   labels:
-    app: ntfy
+    app.kubernetes.io/component: server
 spec:
   persistentVolumeClaimRetentionPolicy:
     whenDeleted: Retain
     whenScaled: Retain
   revisionHistoryLimit: 2
   replicas: 1
-  selector:
-    matchLabels:
-      app: ntfy
   updateStrategy:
     rollingUpdate:
       partition: 0
@@ -21,12 +19,36 @@ spec:
   template:
     metadata:
       labels:
-        app: ntfy
+        app.kubernetes.io/component: server
     spec:
       containers:
         - name: ntfy 
           image: binwiederhier/ntfy:v2.11.0
           args: ["serve"]
+          env:
+            - name: TZ
+              # timezone
+              value: KUSTOMIZE
+            - name: NTFY_DEBUG
+              # debug
+              value: KUSTOMIZE
+            - name: NTFY_LOG_LEVEL
+              # log_level
+              value: KUSTOMIZE
+            - name: NODE_ENV
+              # environment
+              value: KUSTOMIZE
+          resources:
+            requests:
+              # requests_cpu
+              cpu: KUSTOMIZE
+              # requests_mem
+              memory: KUSTOMIZE
+            limits:
+              # limits_cpu
+              cpu:  KUSTOMIZE
+              # limits_mem
+              memory: KUSTOMIZE
           ports: 
             - containerPort: 80
           volumeMounts:
@@ -42,8 +64,11 @@ spec:
   volumeClaimTemplates:
     - metadata:
         name: cache
+        labels:
+          app.kubernetes.io/component: storage
       spec:
         accessModes: [ "ReadWriteOnce" ]
         resources:
           requests:
-            storage: 500Mi
+            # storage_size
+            storage: KUSTOMIZE

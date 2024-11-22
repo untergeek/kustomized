@@ -1,0 +1,12 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ntfy
+spec:
+  template:
+    spec:
+      containers:
+        - name: ntfy 
+          # env: 
+          # #Add more env variables here

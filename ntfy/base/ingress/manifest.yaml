@@ -1,12 +1,16 @@
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
+# KUSTOMIZE values replaced by values in settings/config.properties as noted in comments
 metadata:
   name: ingress
+  labels:
+    app.kubernetes.io/component: web
 spec:
   ingressClassName: nginx
   rules:
-  - host: ntfy.example.com
+    # ingress_fqdn
+  - host: KUSTOMIZE
     http:
       paths:
       - path: /

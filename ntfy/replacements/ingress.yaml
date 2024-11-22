@@ -1,0 +1,11 @@
+---
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.ingress_fqdn
+  targets:
+    - select:
+        kind: Ingress
+        name: ingress
+      fieldPaths:
+        - spec.rules.0.host

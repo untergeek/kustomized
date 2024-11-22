@@ -4,30 +4,39 @@ kind: Kustomization
 resources:
   - base
 
+components:
+  # - components/ingress/tls
+  # - components/statefulset/otel
+
 namespace: ntfy
+
+commonLabels:
+  app.kubernetes.io/name: ntfy
+  app.kubernetes.io/instance: ntfy-0
+  app.kubernetes.io/version: 2.11.0
+  app.kubernetes.io/part-of: ntfy
+  app.kubernetes.io/managed-by: Kustomize
 
 images:
   - name: binwiederhier/ntfy
     newTag: v2.11.0
 
-# Parse server.yml file contents into ConfigMap
 configMapGenerator:
+  # Settings used with replacements
+  - name: settings
+    envs:
+      - settings/config.properties
+  # Parse server.yml file contents into ConfigMap
   - name: server-config
     files: 
       - patches/configmap/server.yml
 
-patches:
-## StatefulSet settings:
-- patch:
-  path: patches/statefulset/settings.yaml
-# Ingress settings:
-- patch: |-
-    - op: replace
-      path: "/spec/rules/0/host"
-      value: "<NTFY.EXAMPLE.COM>"  # Replace with your FQDN
-  target:
-    kind: Ingress
-    name: ingress
-# Uncomment if you plan to enable TLS encryption on your Ingress
+# Only uncomment if you need to patch it
+# patches:
+# ## StatefulSet settings:
 # - patch:
-#   path: patches/ingress/settings.yaml
+#   path: patches/statefulset.yaml
+
+replacements:
+  - path: replacements/statefulset.yaml
+  - path: replacements/ingress.yaml

@@ -1,5 +1,33 @@
 # CHANGELOG
 
+## 2024-11-22
+
+Big changes here to make effective use of `components` and configuration files
+in `settings` in conjunction with `replacements`. This drastically cleans up the
+sprawl in the `kustomization.yaml` file.
+
+Since many settings are now in a config file, many expected options were moved
+to `base` to reduce the amount of sprawl in patches and `kustomization.yaml`.
+The `replacements` are messier, but as they typically do not need to be touched,
+out of sight, out of mind.
+
+Instructions were updated in `README.md`.
+
+### Components
+
+Put TLS configuration in `components/ingress/tls` now, with its own `replacements`.
+This makes it easy to add in `kustomization.yaml` by just having
+
+```yaml
+components:
+  - components/ingress/tls
+```
+
+You do have to have `ingress_fqdn` and `ingress_cert_manager` set accordingly in 
+`settings/config.properties`.
+
+
+
 ## 2024-09-20
 
 A push to normalize the file structures among these different projects has meant
