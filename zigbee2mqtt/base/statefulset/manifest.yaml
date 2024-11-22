@@ -44,7 +44,10 @@ spec:
           image: busybox:1.36
           env:
             - name: NETWORK_KEY
-              value: "[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]"
+              valueFrom:
+                secretKeyRef:
+                  name: my-secrets
+                  key: network_key
           # F is for source Filename, D is for Destination file.
           command: ["sh", "-c", "F=secret.yaml; D=/app/data/${F}; echo begin; echo creating $D; echo network_key: $NETWORK_KEY > $D; echo >> $D; sed -i -e s/\\'//g ${D}; echo created $F with contents: ; cat $D; echo done"]
           volumeMounts:
@@ -62,6 +65,30 @@ spec:
             # or via `- op: add` in kustomization.yaml
             - name: TZ
               value: UTC
+            - name: ZIGBEE2MQTT_CONFIG_ADVANCED_LOG_LEVEL
+              value: KUSTOMIZE
+            - name: ZIGBEE2MQTT_CONFIG_SERIAL_BAUDRATE
+              value: KUSTOMIZE
+            - name: "ZIGBEE2MQTT_CONFIG_MQTT_SERVER"
+              valueFrom:
+                secretKeyRef:
+                  name: my-secrets
+                  key: mqtt_server
+            - name: ZIGBEE2MQTT_CONFIG_MQTT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: my-secrets
+                  key: user
+            - name: ZIGBEE2MQTT_CONFIG_MQTT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: my-secrets
+                  key: password
+            - name: ZIGBEE2MQTT_CONFIG_SERIAL_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: my-secrets
+                  key: serial_port
           ports:
             - name: frontend
               containerPort: 8080

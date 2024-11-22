@@ -1,0 +1,11 @@
+---
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.ingress_basic_auth_msg
+  targets:
+    - select:
+        kind: Ingress
+        name: ingress
+      fieldPaths:
+        - metadata.annotations.[nginx.ingress.kubernetes.io/auth-realm]

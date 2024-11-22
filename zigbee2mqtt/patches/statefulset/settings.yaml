@@ -14,33 +14,6 @@ spec:
       # nodeName: my-k8-node-name
       containers:
         - name: zigbee2mqtt
-          env:
-            - name: TZ
-              value: UTC
-            - name: "ZIGBEE2MQTT_CONFIG_MQTT_SERVER"
-              # If you are using my Mosquitto kustomization, this could point to
-              # a k8s service, e.g. "mqtt://mqtt.mosquitto.svc.cluster.local:1883"
-              value: "mqtt://MQTT.EXAMPLE.COM:1883"
-            - name: ZIGBEE2MQTT_CONFIG_MQTT_USER
-              valueFrom:
-                # my-secrets is defined in kustomization.yaml and pulls from .env.secrets
-                secretKeyRef:
-                  name: my-secrets
-                  key: user
-            - name: ZIGBEE2MQTT_CONFIG_MQTT_PASSWORD
-              valueFrom:
-                # my-secrets is defined in kustomization.yaml and pulls from .env.secrets
-                secretKeyRef:
-                  name: my-secrets
-                  key: password
-            - name: ZIGBEE2MQTT_CONFIG_ADVANCED_LOG_LEVEL
-              value: info
-            - name: ZIGBEE2MQTT_CONFIG_SERIAL_PORT
-              # Match with zigbee-device mountPath, or if using a network-based
-              # device, the network identifier string, e.g. "tcp://10.0.0.1:6638"
-              value: "/dev/MYDEVICE"
-            - name: ZIGBEE2MQTT_CONFIG_SERIAL_BAUDRATE
-              value: "MY_DEVICE_BAUDRATE"  # Set to zigbee-device's expected baudrate
           volumeMounts:
             - name: z2m-data
               mountPath: /app/data

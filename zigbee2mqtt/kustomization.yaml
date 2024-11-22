@@ -4,6 +4,16 @@ kind: Kustomization
 resources:
   - base
 
+## Uncomment these as needed to enable
+# components:
+#   - components/ingress/basic_auth
+#     # basic_auth for your ingress, since zigbee2mqtt is otherwise unprotected
+#   - components/ingress/tls
+#     # tls support for your ingress, so web traffic is encrypted. Requires cert-manager
+#   - components/statefulset/apm
+#     # Elastic APM monitoring of Zigbee2MQTT. Requires a container image that has
+#     # this support added and configured.
+
 namespace: zigbee2mqtt
 
 commonLabels:
@@ -11,15 +21,21 @@ commonLabels:
 
 images:
   - name: koenkk/zigbee2mqtt
-    newTag: 1.40.1
+    newTag: 1.41.0
   - name: busybox
     newTag: "1.36"
+
+configMapGenerator:
+- name: settings
+  envs:
+    - settings/apm.properties
+    - settings/z2m.properties
 
 secretGenerator:
 - name: my-secrets
   literals:
   envs:
-  - .env.secret
+    - settings/.env.secrets
 
 ### Patches
 patches:
@@ -27,31 +43,10 @@ patches:
 - patch:
   path: patches/configmap/configuration.yaml
 ## StatefulSet settings:
-# Use the network_key from secret in our initContainer to create secret.yaml
-# Use `my-secrets` from just above here.
-# This is where your provided value will be used instead of the 0 - 15 sequence.
-- patch: |-
-    - op: replace
-      path: /spec/template/spec/initContainers/1/env/0
-      value:
-        name: NETWORK_KEY
-        valueFrom:
-          secretKeyRef:
-            name: my-secrets
-            key: network_key
-  target:
-    kind: StatefulSet
-    name: zigbee2mqtt
-# Configure the remaining items from the patch file
 - patch:
   path: patches/statefulset/settings.yaml
-## Ingress settings:
-- patch: |-
-    - op: replace
-      path: "/spec/rules/0/host"
-      value: "Z2M.EXAMPLE.COM"
-  target:
-    kind: Ingress
-    name: ingress
-- patch:
-  path: patches/ingress/settings.yaml
+
+## These files apply the values from the settings/* files
+replacements:
+  - path: replacements/statefulset.yaml
+  - path: replacements/ingress.yaml

@@ -3,10 +3,12 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ingress
+  labels:
+    app.kubernetes.io/component: web
 spec:
   ingressClassName: nginx
   rules:
-  - host: Z2M.EXAMPLE.COM
+  - host: KUSTOMIZE
     http:
       paths:
       - path: /
@@ -17,39 +19,4 @@ spec:
             port:
               number: 8080
 
-# Changes to this should be made via kustomization.yaml and/or in
-# patches/ingress/settings.yaml
-#
-### These are separate in case you do not want a TLS-backed Ingress!
-### If you do not want a TLS-backed Ingress, then comment out these lines:
-#
-# - patch:
-#   path: patches/ingress/settings.yaml
-#
-# EXAMPLE from kustomization.yaml:
-# # Ingress settings:
-# - patch: |-
-#     - op: replace
-#       path: "/spec/rules/0/host"
-#       value: "my-z2m.example.com"
-#   target:
-#     kind: Ingress
-#     name: ingress
-# - patch:
-#   path: patches/ingress/settings.yaml
-#
-# patches/ingress/settings.yaml is where the TLS secret is added. I already
-# explained why these are separate. You could just as easily do both the
-# rules.host rename/replacement there. Just remove or comment out the
-# `- op: replace` if you put it in the patch file.
-# 
-# ---
-# apiVersion: networking.k8s.io/v1
-# kind: Ingress
-# metadata:
-#   name: ingress
-# spec:
-#   tls:
-#     - hosts:
-#       - "Z2M.EXAMPLE.COM"
-#       secretName: MY_TLS_SECRET
+# Add basic auth and TLS support via components in kustomization.yaml

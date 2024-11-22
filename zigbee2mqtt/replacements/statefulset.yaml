@@ -1,0 +1,31 @@
+---
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.timezone
+  targets:
+    - select:
+        kind: StatefulSet
+        name: zigbee2mqtt
+      fieldPaths:
+        - spec.template.spec.containers.[name=zigbee2mqtt].env.[name=TZ].value
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.log_level
+  targets:
+    - select:
+        kind: StatefulSet
+        name: zigbee2mqtt
+      fieldPaths:
+        - spec.template.spec.containers.[name=zigbee2mqtt].env.[name=ZIGBEE2MQTT_CONFIG_ADVANCED_LOG_LEVEL].value
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.baudrate
+  targets:
+    - select:
+        kind: StatefulSet
+        name: zigbee2mqtt
+      fieldPaths:
+        - spec.template.spec.containers.[name=zigbee2mqtt].env.[name=ZIGBEE2MQTT_CONFIG_SERIAL_BAUDRATE].value

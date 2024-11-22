@@ -1,0 +1,51 @@
+---
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.apm_service_name
+  targets:
+    - select:
+        kind: StatefulSet
+        name: zigbee2mqtt
+      fieldPaths:
+        - spec.template.spec.containers.[name=zigbee2mqtt].env.[name=ELASTIC_APM_SERVICE_NAME].value
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.apm_service_node_name
+  targets:
+    - select:
+        kind: StatefulSet
+        name: zigbee2mqtt
+      fieldPaths:
+        - spec.template.spec.containers.[name=zigbee2mqtt].env.[name=ELASTIC_APM_SERVICE_NODE_NAME].value
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.apm_verify_cert
+  targets:
+    - select:
+        kind: StatefulSet
+        name: zigbee2mqtt
+      fieldPaths:
+        - spec.template.spec.containers.[name=zigbee2mqtt].env.[name=ELASTIC_APM_VERIFY_SERVER_CERT].value
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.apm_disable_instrumentations
+  targets:
+    - select:
+        kind: StatefulSet
+        name: zigbee2mqtt
+      fieldPaths:
+        - spec.template.spec.containers.[name=zigbee2mqtt].env.[name=ELASTIC_APM_DISABLE_INSTRUMENTATIONS].value
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.node_env
+  targets:
+    - select:
+        kind: StatefulSet
+        name: zigbee2mqtt
+      fieldPaths:
+        - spec.template.spec.containers.[name=zigbee2mqtt].env.[name=NODE_ENV].value

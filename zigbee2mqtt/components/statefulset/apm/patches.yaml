@@ -1,0 +1,31 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: zigbee2mqtt
+spec:
+  template:
+    spec:
+      containers:
+        - name: zigbee2mqtt
+          env:
+            - name: NODE_ENV
+              value: KUSTOMIZE
+            - name: ELASTIC_APM_SERVICE_NAME
+              value: KUSTOMIZE
+            - name: ELASTIC_APM_SERVICE_NODE_NAME
+              value: KUSTOMIZE
+            - name: ELASTIC_APM_VERIFY_SERVER_CERT
+              value: KUSTOMIZE
+            - name: ELASTIC_APM_DISABLE_INSTRUMENTATIONS
+              value: KUSTOMIZE
+            - name: ELASTIC_APM_SECRET_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: my-secrets
+                  key: apm_token
+            - name: ELASTIC_APM_SERVER_URL
+              valueFrom:
+                secretKeyRef:
+                  name: my-secrets
+                  key: apm_url
