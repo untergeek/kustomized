@@ -4,53 +4,44 @@ kind: Kustomization
 resources:
   - ../../base
 
-commonLabels:
-  app: plex-media-server
-  name: mildenplex
-
 namespace: plex
 
+labels:
+- includeSelectors: true
+  pairs:
+    app.kubernetes.io/instance: plex-0
+    app.kubernetes.io/managed-by: Kustomize
+    app.kubernetes.io/name: plex-media-server
+    app.kubernetes.io/part-of: plex
+
 images:
-  - name: index.docker.io/plexinc/pms-docker
-    newTag: latest
+  - name: untergeek/pms-docker
+    newTag: 1.41.6.9685
+
+configMapGenerator:
+  - name: settings
+    envs:
+      - settings/server.properties
+
+components:
+  - ../../components/storage/config/volumeClaim
+  - ../../components/storage/media/nfs
+# Uncomment o use TLS using values in settings/server.properties
+  - ../../components/ingress/tls
+# Uncomment to enable nvidia GPU support
+  - ../../components/nvidia
 
 patches:
-# Volume settings
-## Config PV & PVC
-- patch:
-  path: patches/volumes/config/pv.yaml
-- patch:
-  path: patches/volumes/config/pvc.yaml
-## Storage PV & PVC
-- patch:
-  path: patches/volumes/storage/pv.yaml
-- patch:
-  path: patches/volumes/storage/pvc.yaml
-# StatefulSet settings
+# Need to have the container base replaced here for images to work above
 - patch: |-
     - op: replace
-      path: "/spec/template/spec/containers/0/env/0/value"
-      value: "https://complectogram.untergeek.net"
-    - op: add
-      path: "/spec/template/spec/containers/0/env/-"
-      value:
-        name: PLEX_UID
-        value: "972"
-    - op: add
-      path: "/spec/template/spec/containers/0/env/-"
-      value:
-        name: PLEX_GID
-        value: "972"
+      path: "/spec/template/spec/containers/0/image"
+      value: "untergeek/pms-docker:latest"
   target:
     kind: StatefulSet
     name: plex-app
-# Ingress settings:
-- patch: |-
-    - op: replace
-      path: "/spec/rules/0/host"
-      value: "complectogram.untergeek.net"
-  target:
-    kind: Ingress
-    name: ingress
 - patch:
-  path: patches/ingress.yaml
+  path: patches/service.yaml
+
+replacements:
+- path: replacements/server.yaml

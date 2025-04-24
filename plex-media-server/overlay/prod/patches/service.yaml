@@ -1,0 +1,13 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pms-web
+  annotations:
+    metallb.universe.tf/loadBalancerIPs: 172.19.11.44
+spec:
+  type: LoadBalancer
+  selector:
+    app: plex-media-server
+  ports:
+    - port: 32400

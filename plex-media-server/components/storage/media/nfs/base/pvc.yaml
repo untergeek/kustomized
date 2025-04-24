@@ -4,10 +4,11 @@ kind: PersistentVolumeClaim
 metadata:
   name: pms-media-pvc
 spec:
-  storageClassName: nfs-csi
-  volumeName: pms-media-pv
   accessModes:
     - ReadOnlyMany
+  storageClassName: ""
   resources:
     requests:
       storage: 3Ti
+  volumeName: pms-media-pv
+  

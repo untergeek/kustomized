@@ -12,7 +12,6 @@ spec:
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      # app.kubernetes.io/instance: plex-app
       app.kubernetes.io/name: plex-media-server
   updateStrategy:
     rollingUpdate:
@@ -22,41 +21,46 @@ spec:
     metadata:
       labels:
         app: plex-media-server
-        app.kubernetes.io/name: plex-media-server
     spec:
       affinity: {}
       containers:
-      - env:
-        - name: ADVERTISE_IP
-          value: http://plex.example.com
+      - name: pms-app
         image: index.docker.io/plexinc/pms-docker:latest
         imagePullPolicy: IfNotPresent
-        name: pms-app
+        env:
+        - name: TZ
+          value: UTC
+        - name: ADVERTISE_IP
+          value: http://plex.example.com
+        - name: TZ
+          value: UTC
+        - name: PLEX_UID
+          value: "1000"
+        - name: PLEX_GID
+          value: "1000" 
         ports:
         - containerPort: 32400
           name: pms
           protocol: TCP
-        resources: {}
+        resources:
+          requests:
+            cpu: "1000m"
+            memory: "768Mi"
+          limits:
+            cpu: "4000m"
+            memory: "4096Mi"
+        securityContext:
+          privileged: true
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
         volumeMounts:
-        - mountPath: /config
-          name: pms-config
         - mountPath: /transcode
           name: pms-transcode
-        - mountPath: /plex
-          name: pms-media
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext: {}
       terminationGracePeriodSeconds: 120
       volumes:
-      - name: pms-config
-        persistentVolumeClaim:
-          claimName: pms-config-pvc
       - name: pms-transcode
         emptyDir: {}
-      - name: pms-media
-        persistentVolumeClaim:
-          claimName: pms-media-pvc

@@ -1,0 +1,39 @@
+---
+# Storage
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.mediaSize
+  targets:
+    - select:
+        kind: PersistentVolume
+        name: pms-media-pv
+      fieldPaths:
+        - spec.capacity.storage
+    - select:
+        kind: PersistentVolumeClaim
+        name: pms-media-pvc
+      fieldPaths:
+        - spec.resources.requests.storage
+# NFS Server Name
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.nfsServer
+  targets:
+    - select:
+        kind: PersistentVolume
+        name: pms-media-pv
+      fieldPaths:
+        - spec.nfs.server
+# Path
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.mediaPath
+  targets:
+    - select:
+        kind: PersistentVolume
+        name: pms-media-pv
+      fieldPaths:
+        - spec.nfs.path

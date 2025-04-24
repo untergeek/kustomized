@@ -1,0 +1,36 @@
+---
+# spec:
+#   volumeClaimTemplates:
+#     - metadata:
+#         name: pms-config-pvc
+#       spec:
+#         accessModes: [ "ReadWriteOnce" ]
+#         storageClassName: default
+#         resources:
+#           requests:
+#             storage: 50Gi
+
+# Storage
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.configSize
+  targets:
+    - select:
+        kind: StatefulSet
+        name: plex-app
+      fieldPaths:
+        - spec.volumeClaimTemplates.0.spec.resources.requests.storage
+
+# storageClassName
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.configStorageClass
+  targets:
+    - select:
+        kind: StatefulSet
+        name: plex-app
+      fieldPaths:
+        - spec.volumeClaimTemplates.0.spec.storageClassName
+
