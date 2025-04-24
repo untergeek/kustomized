@@ -17,6 +17,7 @@ A collection of Kubernetes Kustomizations I've [ab]used
 * [zigbee2mqtt](zigbee2mqtt/README.md): [Zigbee to MQTT bridge](https://zigbee2mqtt.io).
 * [plex-media-server](plex-media-server/README.md): [Organize and stream your
   media](https://plex.tv).
+* [tautulli](tautulli/README.md): [Monitor your Plex Media Server](https://tautulli.com).
 
 ### Exercises in Futility
 
