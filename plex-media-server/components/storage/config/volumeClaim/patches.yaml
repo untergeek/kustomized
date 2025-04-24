@@ -1,0 +1,22 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: plex-app
+spec:
+  template:
+    spec:
+      containers:
+      - name: pms-app
+        volumeMounts:
+        - mountPath: /config
+          name: pms-config
+  volumeClaimTemplates:
+    - metadata:
+        name: pms-config
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        storageClassName: default
+        resources:
+          requests:
+            storage: 50Gi

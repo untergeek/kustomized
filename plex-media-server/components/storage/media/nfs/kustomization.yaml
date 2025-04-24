@@ -1,0 +1,18 @@
+---
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+# This adds the PV and PVC for the NFS media share
+resources:
+  - base
+
+
+# This adds the volume and volume mount to the StatefulSet container definition
+patches:
+  - patch:
+    path: patches.yaml
+
+
+# This replaces the default values for the PV and PVC with the values in settings/server.properties
+replacements:
+  - path: replacements.yaml

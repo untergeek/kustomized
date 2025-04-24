@@ -1,0 +1,17 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: plex-app
+spec:
+  template:
+    spec:
+      containers:
+      - name: pms-app
+        env:
+        - name: NVIDIA_DRIVER_CAPABILITIES
+          value: "all"
+        - name: NVIDIA_VISIBLE_DEVICES
+          value: "all"
+        securityContext:
+          privileged: true

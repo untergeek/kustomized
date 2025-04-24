@@ -4,41 +4,43 @@ kind: Kustomization
 resources:
   - base
 
-commonLabels:
-  app: plex-media-server
-  name: mildenplex
+labels:
+- includeSelectors: true
+  pairs:
+    app.kubernetes.io/instance: plex-0
+    app.kubernetes.io/managed-by: Kustomize
+    app.kubernetes.io/name: plex-media-server
+    app.kubernetes.io/part-of: plex
+
+components:
+  - components/storage/config/volumeClaim
+  # If using something other than NFS, you may need to figure it out yourself
+  - components/storage/media/nfs
+# Uncomment o use TLS using values in settings/server.properties
+  # - components/ingress/tls
+# Uncomment to enable nvidia GPU support
+  # - components/nvidia
+
+configMapGenerator:
+- envs:
+  - settings/server.properties
+  name: settings
 
 images:
-  - name: index.docker.io/plexinc/pms-docker
-    newTag: latest
+- name: index.docker.io/plexinc/pms-docker
+  newTag: latest
 
 patches:
-# Volume settings
-## Config PV & PVC
-- patch:
-  path: patches/volumes/config/pv.yaml
-- patch:
-  path: patches/volumes/config/pvc.yaml
-## Storage PV & PVC
-- patch:
-  path: patches/volumes/storage/pv.yaml
-- patch:
-  path: patches/volumes/storage/pvc.yaml
-# StatefulSet settings
-- patch: |-
-    - op: replace
-      path: "/spec/template/spec/containers/0/env/0/value"
-      value: "https://plex.example.com"
-  target:
-    kind: StatefulSet
-    name: plex-app
-# Ingress settings:
-- patch: |-
-    - op: replace
-      path: "/spec/rules/0/host"
-      value: "<PLEX.EXAMPLE.COM>"
-  target:
-    kind: Ingress
-    name: ingress
-- patch:
-  path: patches/ingress.yaml
+# If you plan on using a different image to enable Nvidia GPU support, you must
+# do so here as well as include your image in the images section above.
+# Replace the value of the image with the one you want to use.
+# - patch: |-
+#     - op: replace
+#       path: "/spec/template/spec/containers/0/image"
+#       value: "index.docker.io/plexinc/pms-docker:latest"
+#   target:
+#     kind: StatefulSet
+#     name: plex-app
+
+replacements:
+- path: replacements/server.yaml

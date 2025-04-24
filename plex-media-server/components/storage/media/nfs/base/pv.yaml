@@ -5,7 +5,7 @@ metadata:
   name: pms-media-pv
 spec:
   capacity:
-    storage: 1Ti
+    storage: 3Ti
   accessModes:
     - ReadOnlyMany
   nfs:

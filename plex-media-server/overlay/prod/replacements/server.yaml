@@ -1,0 +1,96 @@
+---
+# Set timezone to the value in our ConfigMap
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.timezone
+  targets:
+    - select:
+        kind: StatefulSet
+        name: plex-app
+      fieldPaths:
+        - spec.template.spec.containers.[name=pms-app].env.[name=TZ].value
+# Set ADVERTISE_IP to the value in our ConfigMap
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.advertise_ip
+  targets:
+    - select:
+        kind: StatefulSet
+        name: plex-app
+      fieldPaths:
+        - spec.template.spec.containers.[name=pms-app].env.[name=ADVERTISE_IP].value
+# Set PLEX_GID and PLEX_UID
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.plex_gid
+  targets:
+    - select:
+        kind: StatefulSet
+        name: plex-app
+      fieldPaths:
+        - spec.template.spec.containers.[name=pms-app].env.[name=PLEX_GID].value
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.plex_uid
+  targets:
+    - select:
+        kind: StatefulSet
+        name: plex-app
+      fieldPaths:
+        - spec.template.spec.containers.[name=pms-app].env.[name=PLEX_UID].value
+# Resources
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.server_requests_cpu
+  targets:
+    - select:
+        kind: StatefulSet
+        name: plex-app
+      fieldPaths:
+        - spec.template.spec.containers.[name=pms-app].resources.requests.cpu
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.server_requests_mem
+  targets:
+    - select:
+        kind: StatefulSet
+        name: plex-app
+      fieldPaths:
+        - spec.template.spec.containers.[name=pms-app].resources.requests.memory
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.server_limits_cpu
+  targets:
+    - select:
+        kind: StatefulSet
+        name: plex-app
+      fieldPaths:
+        - spec.template.spec.containers.[name=pms-app].resources.limits.cpu
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.server_limits_mem
+  targets:
+    - select:
+        kind: StatefulSet
+        name: plex-app
+      fieldPaths:
+        - spec.template.spec.containers.[name=pms-app].resources.limits.memory
+# Ingress
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.ingress_fqdn
+  targets:
+    - select:
+        kind: Ingress
+        name: ingress
+      fieldPaths:
+        - spec.rules.0.host
