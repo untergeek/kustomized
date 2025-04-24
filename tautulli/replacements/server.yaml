@@ -1,0 +1,96 @@
+---
+# Set timezone to the value in our ConfigMap
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.timezone
+  targets:
+    - select:
+        kind: StatefulSet
+        name: tautulli
+      fieldPaths:
+        - spec.template.spec.containers.[name=tautulli].env.[name=TZ].value
+# Set PGID and PUID
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.pgid
+  targets:
+    - select:
+        kind: StatefulSet
+        name: tautulli
+      fieldPaths:
+        - spec.template.spec.containers.[name=tautulli].env.[name=PGID].value
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.puid
+  targets:
+    - select:
+        kind: StatefulSet
+        name: tautulli
+      fieldPaths:
+        - spec.template.spec.containers.[name=tautulli].env.[name=PUID].value
+# Resources
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.server_requests_cpu
+  targets:
+    - select:
+        kind: StatefulSet
+        name: tautulli
+      fieldPaths:
+        - spec.template.spec.containers.[name=tautulli].resources.requests.cpu
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.server_requests_mem
+  targets:
+    - select:
+        kind: StatefulSet
+        name: tautulli
+      fieldPaths:
+        - spec.template.spec.containers.[name=tautulli].resources.requests.memory
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.server_limits_cpu
+  targets:
+    - select:
+        kind: StatefulSet
+        name: tautulli
+      fieldPaths:
+        - spec.template.spec.containers.[name=tautulli].resources.limits.cpu
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.server_limits_mem
+  targets:
+    - select:
+        kind: StatefulSet
+        name: tautulli
+      fieldPaths:
+        - spec.template.spec.containers.[name=tautulli].resources.limits.memory
+# VolumeClaimTemplate
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.storage_size
+  targets:
+    - select:
+        kind: StatefulSet
+        name: tautulli
+      fieldPaths:
+        - spec.volumeClaimTemplates.0.spec.resources.requests.storage
+# Ingress
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.ingress_fqdn
+  targets:
+    - select:
+        kind: Ingress
+        name: ingress
+      fieldPaths:
+        - spec.rules.0.host

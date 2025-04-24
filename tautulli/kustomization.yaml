@@ -1,0 +1,31 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- base
+
+namespace: tautulli
+
+labels:
+- includeSelectors: true
+  pairs:
+    app.kubernetes.io/instance: tautulli-0
+    app.kubernetes.io/managed-by: Kustomize
+    app.kubernetes.io/name: tautulli
+    app.kubernetes.io/part-of: plex
+
+# Uncomment if you want to use TLS using values in settings/server.properties
+# components:
+#   - components/ingress/tls
+
+configMapGenerator:
+- envs:
+  - settings/server.properties
+  name: settings
+
+images:
+- name: ghcr.io/tautulli/tautulli
+  newTag: v2.15.2
+
+replacements:
+- path: replacements/server.yaml
+

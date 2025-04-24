@@ -1,0 +1,68 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: tautulli
+  name: tautulli
+spec:
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Retain
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tautulli
+  updateStrategy:
+    rollingUpdate:
+      partition: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: tautulli
+    spec:
+      containers:
+        - name: tautulli
+          image: ghcr.io/tautulli/tautulli:v2.15.2
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: TZ
+              value: "UTC"
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+          ports:
+            - name: web
+              containerPort: 8181
+              protocol: TCP
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "2000m"
+              memory: "1024Mi"
+          livenessProbe:
+            tcpSocket:
+              port: web
+            failureThreshold: 12
+            periodSeconds: 5
+          startupProbe:
+            tcpSocket:
+              port: web
+            failureThreshold: 90
+            initialDelaySeconds: 1
+            periodSeconds: 1
+          volumeMounts:
+            - name: tautulli-config
+              mountPath: /config
+  volumeClaimTemplates:
+    - metadata:
+        name: tautulli-config
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 2Gi
