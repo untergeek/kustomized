@@ -15,9 +15,6 @@ A collection of Kubernetes Kustomizations I've [ab]used
 * [ntfy](ntfy/README.md): [Push notifications made easy](https://ntfy.sh).
 * [pihole](pihole/README.md): [Network-wide Ad Blocking](https://pi-hole.net).
 * [zigbee2mqtt](zigbee2mqtt/README.md): [Zigbee to MQTT bridge](https://zigbee2mqtt.io).
-
-### Work in Progress
-
 * [plex-media-server](plex-media-server/README.md): [Organize and stream your
   media](https://plex.tv).
 
