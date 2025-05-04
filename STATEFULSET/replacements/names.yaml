@@ -1,0 +1,142 @@
+---
+### Values replaced by settings/name.properties as indicated
+
+# metadata.name
+- source:
+    kind: ConfigMap
+    name: names
+    fieldPath: data.app_name
+  targets:
+    - select:
+        kind: StatefulSet
+        name: app-name
+      fieldPaths:
+        - metadata.name
+# serviceName
+- source:
+    kind: ConfigMap
+    name: names
+    fieldPath: data.sts_name
+  targets:
+    - select:
+        kind: StatefulSet
+        name: app-name
+      fieldPaths:
+        - spec.serviceName
+# Selector label: app-label
+- source:
+    kind: ConfigMap
+    name: names
+    fieldPath: data.label_app
+  targets:
+    - select:
+        kind: StatefulSet
+        name: app-name
+      fieldPaths:
+        - metadata.labels.app
+        - spec.selector.matchLabels.app
+        - spec.template.metadata.labels.app
+    - select:
+        kind: Service
+        name: app-svc
+      fieldPaths:
+        - spec.selector.app
+# Container name
+- source:
+    kind: ConfigMap
+    name: names
+    fieldPath: data.container_name
+  targets:
+    - select:
+        kind: StatefulSet
+        name: app-name
+      fieldPaths:
+        - spec.template.spec.containers.0.name
+# Storage volume
+- source:
+    kind: ConfigMap
+    name: names
+    fieldPath: data.storage_vol
+  targets:
+    - select:
+        kind: StatefulSet
+        name: app-name
+      fieldPaths:
+        - spec.template.spec.containers.[name=app-container].volumeMounts.[name=app-storage-vol].name
+        - spec.volumeClaimTemplates.0.metadata.name
+
+# ConfigMap name
+- source:
+    kind: ConfigMap
+    name: names
+    fieldPath: data.configmap_name
+  targets:
+    - select:
+        kind: ConfigMap
+        name: app-cm
+      fieldPaths:
+        - metadata.name
+    - select:
+        kind: StatefulSet
+        name: app-name
+      fieldPaths:
+        - spec.template.spec.volumes.[name=configmap-vol].configMap.name
+
+# # ConfigMap volume
+- source:
+    kind: ConfigMap
+    name: names
+    fieldPath: data.configmap_vol
+  targets:
+    - select:
+        kind: StatefulSet
+        name: app-name
+      fieldPaths:
+        - spec.template.spec.containers.[name=app-container].volumeMounts.[name=configmap-vol].name 
+        - spec.template.spec.volumes.[name=configmap-vol].name
+
+# Service name
+- source:
+    kind: ConfigMap
+    name: names
+    fieldPath: data.service_name
+  targets:
+    - select:
+        kind: Service
+        name: app-svc
+      fieldPaths:
+        - metadata.name
+    - select:
+        kind: Ingress
+        name: app-ingress
+      fieldPaths:
+        - spec.rules.0.http.paths.0.backend.service.name
+
+# Service port name
+- source:
+    kind: ConfigMap
+    name: names
+    fieldPath: data.service_port_name
+  targets:
+    - select:
+        kind: Service
+        name: app-svc
+      fieldPaths:
+        - spec.ports.[name=http].name
+    - select:
+        kind: StatefulSet
+        name: app-name
+      fieldPaths:
+        - spec.template.spec.containers.[name=app-container].ports.[name=http].name
+
+# Ingress name
+- source:
+    kind: ConfigMap
+    name: names
+    fieldPath: data.ingress_name
+  targets:
+    - select:
+        kind: Ingress
+        name: app-ingress
+      fieldPaths:
+        - metadata.name

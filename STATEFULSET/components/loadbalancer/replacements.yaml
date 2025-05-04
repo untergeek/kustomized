@@ -1,0 +1,14 @@
+---
+### Values replaced by settings/name.properties as indicated
+# *.targets.0.name: app-svc = service_name
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.loadbalancer_ip
+  targets:
+    - select:
+        kind: Service
+        name: app-svc
+      fieldPaths:
+        # - metadata.annotations.[metallb.universe.tf/loadBalancerIPs]
+        - spec.loadBalancerIP

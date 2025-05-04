@@ -1,0 +1,138 @@
+---
+# Values replaced by settings/name.properties as indicated
+# by the fieldPath in each source directive, i.e. data.SETTING_NAME
+
+## Container Image
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.container_image
+  targets:
+    - select:
+        kind: StatefulSet
+        name: app-name
+      fieldPaths:
+        - spec.template.spec.containers.[name=app-container].image
+## Resources
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.server_requests_cpu
+  targets:
+    - select:
+        kind: StatefulSet
+        name: app-name
+      fieldPaths:
+        - spec.template.spec.containers.[name=app-container].resources.requests.cpu
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.server_requests_mem
+  targets:
+    - select:
+        kind: StatefulSet
+        name: app-name
+      fieldPaths:
+        - spec.template.spec.containers.[name=app-container].resources.requests.memory
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.server_limits_cpu
+  targets:
+    - select:
+        kind: StatefulSet
+        name: app-name
+      fieldPaths:
+        - spec.template.spec.containers.[name=app-container].resources.limits.cpu
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.server_limits_mem
+  targets:
+    - select:
+        kind: StatefulSet
+        name: app-name
+      fieldPaths:
+        - spec.template.spec.containers.[name=app-container].resources.limits.memory
+# Ingress
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.ingress_fqdn
+  targets:
+    - select:
+        kind: Ingress
+        name: app-ingress
+      fieldPaths:
+        - spec.rules.0.host
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.ingress_class_name
+  targets:
+    - select:
+        kind: Ingress
+        name: app-ingress
+      fieldPaths:
+        - spec.ingressClassName
+
+# Service
+## Service Type
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.service_type
+  targets:
+    - select:
+        kind: Service
+        name: app-svc
+      fieldPaths:
+        - spec.type
+## Protocol
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.service_protocol
+  targets:
+    - select:
+        kind: Service
+        name: app-svc
+      fieldPaths:
+        - spec.type
+    - select:
+        kind: StatefulSet
+        name: app-name
+      fieldPaths:
+        - spec.template.spec.containers.[name=app-container].ports.[name=http].protocol
+## Service Port (the port the Service exposes)
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.service_port
+  targets:
+    - select:
+        kind: Service
+        name: app-svc
+      fieldPaths:
+        - spec.ports.[name=http].port
+    - select:
+        kind: Ingress
+        name: app-ingress
+      fieldPaths:
+        - spec.rules.0.http.paths.0.backend.service.port.number
+## Service Target Port (the port the container exposes)
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.service_target_port
+  targets:
+    - select:
+        kind: Service
+        name: app-svc
+      fieldPaths:
+        - spec.ports.[name=http].targetPort
+    - select:
+        kind: StatefulSet
+        name: app-name
+      fieldPaths:
+        - spec.template.spec.containers.[name=app-container].ports.[name=http].containerPort
