@@ -1,0 +1,21 @@
+## Service Port (the port the Service exposes)
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.ingress_fqdn
+  targets:
+    - select:
+        kind: Ingress
+        name: app-ingress
+      fieldPaths:
+        - spec.rules.0.host
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.svc_port
+  targets:
+    - select:
+        kind: Ingress
+        name: app-ingress
+      fieldPaths:
+        - spec.rules.0.http.paths.0.backend.service.port.number

@@ -1,0 +1,49 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- base
+
+namespace: CHANGEME
+
+labels:
+- includeSelectors: true
+  pairs:
+    app.kubernetes.io/instance: CHANGEME-0
+    app.kubernetes.io/managed-by: Kustomize
+    app.kubernetes.io/name: CHANGEME
+
+images:
+- name: OWNER/IMAGE
+  newTag: latest
+
+components:
+- components/storage/app
+- components/storage/storageClass
+- components/envvars
+- components/ingress/tls
+- components/loadbalancer
+- components/configmap
+
+
+configMapGenerator:
+- name: app-env
+  envs:
+  - settings/app.env
+- name: settings
+  envs:
+  - settings/server.properties
+- name: names
+  envs:
+  - settings/name.properties
+
+# Uncomment if you are adding a configmap configuration
+# ### You must also uncomment the configmap component ###
+- name: app-cm
+  behavior: replace
+  files:
+    - patches/configmap/app.conf
+
+
+replacements:
+- path: replacements/server.yaml
+- path: replacements/names.yaml

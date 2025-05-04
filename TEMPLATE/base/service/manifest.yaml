@@ -1,0 +1,25 @@
+---
+### Values replaced by settings/name.properties as indicated
+# Under metadata:
+# .name: app-svc = service_name
+# Under spec:
+# .selector.app: app-label = label_app
+### Values replaced by settings/server.properties as indicated
+# Under spec.ports.0:
+# .protocol: TCP = service_protocol
+# .port: 80 = service_port
+# .name: http = service_port_name
+# .targetPort: 80 = service_target_port
+kind: Service
+apiVersion: v1
+metadata:
+  name: app-svc
+spec:
+  type: ClusterIP
+  selector:
+    app: app-label
+  ports:
+    - protocol: TCP
+      port: 80
+      name: http
+      targetPort: 80

@@ -1,0 +1,13 @@
+---
+### Values replaced by settings/name.properties as indicated
+# Under metadata:
+# .name: app-cm = configmap_name
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-cm
+data:
+  example.conf: |-
+    # COMPONENT: This comes from components/configmap/base/manifest.yaml
+    # Modify patches/configmap/app-cm.yaml and uncomment the corresponding line
+    # in kustomization.yaml to apply the changes.

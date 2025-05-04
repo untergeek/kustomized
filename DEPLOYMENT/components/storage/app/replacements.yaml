@@ -1,0 +1,43 @@
+---
+### Values replaced by settings/name.properties as indicated
+# [name=app-container] = container_name
+# [name=app-storage-vol] = storage_vol
+## Storage
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.appVol_storage
+  targets:
+    - select:
+        kind: PersistentVolumeClaim
+        name: app-pvc
+      fieldPaths:
+        - spec.resources.requests.storage
+
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.appVol_mountPath
+  targets:
+    - select:
+        kind: Deployment
+        name: app-name
+      fieldPaths:
+        - spec.template.spec.containers.[name=app-container].volumeMounts.[name=app-storage-vol].mountPath
+
+# PVC name
+- source:
+    kind: ConfigMap
+    name: names
+    fieldPath: data.pvc_name
+  targets:
+    - select:
+        kind: PersistentVolumeClaim
+        name: app-pvc
+      fieldPaths:
+        - metadata.name
+    - select:
+        kind: Deployment
+        name: app-name
+      fieldPaths:
+        - spec.template.spec.volumes.[name=app-storage-vol].persistentVolumeClaim.claimName

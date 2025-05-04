@@ -1,0 +1,47 @@
+---
+### Values replaced by settings/name.properties as indicated
+# Under metadata:
+# .labels.app: app-label = label_app
+# .name: app-name = app_name
+# Under spec:
+# .containers.name: app-container = container_name 
+# .serviceName: sts-name = sts_name
+### Values replaced by settings/server.properties as indicated
+# Under spec.template.spec.containers.0:
+# .image: OWNER/IMAGE:TAG = container_image
+# .ports.0.name: http = service_port_name
+# .ports.0.containerPort: 80 = service_port
+# .ports.0.protocol: TCP = service_protocol
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: app-label
+  name: app-name
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: app-label
+  template:
+    metadata:
+      labels:
+        app: app-label
+    spec:
+      containers:
+        - name: app-container
+          image: OWNER/IMAGE:TAG
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "896Mi"

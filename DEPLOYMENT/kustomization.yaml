@@ -1,0 +1,69 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- base
+
+namespace: CHANGEME
+
+# If uncommented, these will add a prefix and/or suffix to all resources
+# This is especially useful if you are deploying multiple copies of this template
+# namePrefix: myprefix-
+# nameSuffix: -mysuffix
+
+labels:
+- includeSelectors: true
+  pairs:
+    app.kubernetes.io/instance: CHANGEME-0
+    app.kubernetes.io/managed-by: Kustomize
+    app.kubernetes.io/name: CHANGEME
+
+images:
+- name: OWNER/IMAGE
+  newTag: latest
+
+components:
+- components/storage/app
+# - components/storage/storageClass
+# If you enable envvars, uncomment the app-env section of the configMapGenerator
+# - components/envvars
+- components/ingress/base
+- components/ingress/tls
+# - components/loadbalancer
+# If you enable configmap, uncomment the app-cm line under patches:
+- components/configmap
+
+
+configMapGenerator:
+## This should never be commented out
+- name: settings
+  envs:
+  - settings/server.properties
+## This should never be commented out
+- name: names
+  envs:
+  - settings/name.properties
+## Uncomment if you have uncommented the envvars component
+# Edit settings/app.env to add your environment variables
+# - name: app-env
+#   envs:
+#   - settings/app.env
+
+
+## Patches
+# Uncomment if you are uncommenting one of the following patches
+patches:
+
+# Uncomment if you are uncommenting the configmap component
+# Before enabling this patch, you MUST edit and configure patches/configmap/app-cm.conf
+- path: patches/configmap/app-cm.yaml
+
+## Rolling Update Strategy (Optional)
+
+# Uncomment if you wish to use a rolling update strategy
+# Before enabling this patch, you MUST edit and configure patches/rollingupdate.yaml
+#
+# - path: patches/rollingupdate.yaml
+
+replacements:
+- path: replacements/server.yaml
+- path: replacements/names.yaml

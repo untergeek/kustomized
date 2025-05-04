@@ -1,0 +1,32 @@
+---
+### Values replaced by settings/name.properties as indicated
+# metadata.name: app-name = app_name
+# Under spec.template.spec.containers.0
+# .name: app-container = container_name
+# Under .volumeMounts.0
+# .name: configmap-vol = configmap_vol
+# Under spec.template.spec.volumes.0
+# .name: configmap-vol = configmap_name
+### Values replaced by settings/server.properties as indicated
+# Under spec.template.spec.containers.0.volumeMounts.0
+# .mountPath: /path/to/config = configmap_path
+# Under spec.template.spec.volumes.0.configMap
+# .name: app-cm = configmap_name
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: app-name
+spec:
+  template:
+    spec:
+      containers:
+        - name: app-container
+          volumeMounts:
+            - name: configmap-vol
+              mountPath: /path/to/config
+              subPath: app.conf
+      volumes:
+        - name: configmap-vol
+          configMap:
+            defaultMode: 420
+            name: app-cm

@@ -1,0 +1,11 @@
+---
+### Values replaced by settings/name.properties as indicated
+# Under metadata:
+# .name: app-cm = configmap_name
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-cm
+data:
+  app.conf: |-
+    #

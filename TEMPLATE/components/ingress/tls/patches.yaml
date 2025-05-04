@@ -1,0 +1,23 @@
+---
+### Values replaced by settings/name.properties as indicated
+# Under metadata:
+# .name: app-ingress = ingress_name
+### Values replaced by settings/server.properties as indicated
+# Under metadata.annotations.cert-manager.io/cluster-issuer:
+#  KUSTOMIZE = ingress_cert_manager
+# Under spec.tls.0.hosts:
+# .0: KUSTOMIZE = ingress_fqdn
+# .secretName: KUSTOMIZE = ingress_tls
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-ingress
+  annotations: 
+    cert-manager.io/cluster-issuer: KUSTOMIZE
+  labels:
+    app.kubernetes.io/component: tls
+spec:
+  tls:
+    - hosts:
+      - KUSTOMIZE
+      secretName: KUSTOMIZE

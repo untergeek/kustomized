@@ -1,0 +1,11 @@
+---
+### Values replaced by settings/name.properties as indicated
+# metadata.name: app-pvc = pvc_name
+### Values replaced by settings/server.properties as indicated
+# spec.storageClassName: default = storageClass
+apiVersion: apps/v1
+kind: PersistentVolumeClaim
+metadata:
+  name: app-pvc
+spec:
+  storageClassName: default

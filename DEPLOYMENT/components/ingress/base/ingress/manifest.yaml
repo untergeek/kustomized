@@ -1,0 +1,30 @@
+---
+### Values replaced by settings/name.properties as indicated
+# Under metadata
+# .name: app-ingress = ingress_name
+# Under spec.rules.0.http.paths.0.backend.service:
+# .name: app-svc = service_name
+### Values replaced by settings/server.properties as indicated
+# Under spec:
+# .ingressClassName: nginx = ingress_class_name
+# Under spec.rules.0:
+# .host: host.example.com = ingress_fqdn
+# Under spec.rules.0.http.paths.0.backend.service.port:
+# .number: 80 = service_port
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: host.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: app-svc
+            port:
+              number: 80

@@ -1,0 +1,15 @@
+---
+### Values replaced by settings/name.properties as indicated
+# *.targets.0.name: app-svc = service_name
+# storageClass
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.storageClass
+  targets:
+    - select:
+        kind: StatefulSet
+        name: app-name
+      fieldPaths:
+        - spec.volumeClaimTemplates.0.spec.storageClassName
+

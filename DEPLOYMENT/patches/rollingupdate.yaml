@@ -1,0 +1,37 @@
+---
+### Values replaced by settings/name.properties as indicated
+# Under metadata:
+# .labels.app: app-label = label_app
+# .name: app-name = app_name
+# Under spec:
+# .containers.name: app-container = container_name 
+#
+# RollingUpdate
+### Be sure to update the rollingUpdate section and number of replicas
+# Using the RollingUpdate strategy requires a readinessProbe. The one included
+# below is only representative and may not work for your application or container
+# image. Please update it as needed.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-name
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: app-label
+  template:
+    spec:
+      containers:
+        - name: app-container
+      readinessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5

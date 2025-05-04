@@ -1,0 +1,56 @@
+---
+### Values replaced by settings/name.properties as indicated
+
+# ConfigMap name
+- source:
+    kind: ConfigMap
+    name: names
+    fieldPath: data.configmap_name
+  targets:
+    - select:
+        kind: ConfigMap
+        name: app-cm
+      fieldPaths:
+        - metadata.name
+    - select:
+        kind: Deployment
+        name: app-name
+      fieldPaths:
+        - spec.template.spec.volumes.[name=configmap-vol].configMap.name
+
+# ConfigMap volume
+- source:
+    kind: ConfigMap
+    name: names
+    fieldPath: data.configmap_vol
+  targets:
+    - select:
+        kind: Deployment
+        name: app-name
+      fieldPaths:
+        - spec.template.spec.containers.[name=app-container].volumeMounts.[name=configmap-vol].name 
+        - spec.template.spec.volumes.[name=configmap-vol].name
+
+# ConfigMap mountPath
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.cm_mountPath
+  targets:
+    - select:
+        kind: Deployment
+        name: app-name
+      fieldPaths:
+        - spec.template.spec.containers.[name=app-container].volumeMounts.[name=configmap-vol].mountPath
+
+# ConfigMap subPath
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.cm_subPath
+  targets:
+    - select:
+        kind: Deployment
+        name: app-name
+      fieldPaths:
+        - spec.template.spec.containers.[name=app-container].volumeMounts.[name=configmap-vol].subPath

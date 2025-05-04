@@ -1,0 +1,30 @@
+---
+### Values replaced by settings/name.properties as indicated
+# metadata.name: app-name = app_name
+# Under spec.template.spec.containers.0
+# .name: app-container = container_name
+# Under .volumeMounts.0
+# .name: app-storage-vol = app-storage_vol
+# Under spec.volumeClaimTemplates.0
+# .metadata.name: app-storage-vol = app-storage_vol
+### Values replaced by settings/server.properties as indicated
+# Under spec.template.spec.containers.0.volumeMounts.0
+# .mountPath: /path/to/config = storage_path
+# Under spec.volumeClaimTemplates.0.spec.resources.requests
+# .storage: 500Mi = store_size
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-name
+spec:
+  template:
+    spec:
+      containers:
+        - name: app-container
+          volumeMounts:
+            - name: app-storage-vol
+              mountPath: /path/to/storage
+      volumes:
+        - name: app-storage-vol
+          persistentVolumeClaim:
+            claimName: app-pvc

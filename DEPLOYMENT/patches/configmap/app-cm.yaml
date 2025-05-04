@@ -1,0 +1,24 @@
+---
+### Values replaced by settings/name.properties as indicated
+# Under metadata:
+# .name: app-cm = configmap_name
+# It is EXPECTED that you will add as a key the value of the configmap_subpath
+# from settings/server.properties. example.conf is only a placeholder
+# The mountPath and subPath for this ConfigMap should be set in
+# settings/server.properties as configmap_path and configmap_subpath, respectively.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-cm
+data:
+  example.conf: |-
+    # PROOF: Contents come from patches/configmap/app-cm.yaml
+    # Preserve the example.conf key as a way to keep the patch testable.
+# If the value of configmap_subpath were filename.conf, then I would add the
+# following line to the data section of this ConfigMap at the same indentation
+# level as example.conf, 2 spaces from the left margin:
+  # filename.conf: |-
+    # FOO=BAR
+    # BAZ=QUX
+# The contents of the file can be anything as expected, but must ALL be at an
+# indentation level 4 spaces from the left margin (2 spaces past filename.conf).

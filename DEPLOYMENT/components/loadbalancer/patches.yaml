@@ -1,0 +1,18 @@
+---
+### Values replaced by settings/name.properties as indicated
+# metadata.name: app-svc = service_name
+### Values replaced by settings/server.properties as indicated
+# Under metallb.universe.tf/loadBalancerIPs:
+#  KUSTOMIZE = loadbalancer_ip
+# .protocol: TCP = service_protocol
+# spec.type: LoadBalancer = service_type
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-svc
+  # annotations:
+  #   metallb.universe.tf/loadBalancerIPs: KUSTOMIZE
+spec:
+  type: LoadBalancer
+  loadBalancerIP: <LOADBALANCER_IP>
+  externalTrafficPolicy: Local

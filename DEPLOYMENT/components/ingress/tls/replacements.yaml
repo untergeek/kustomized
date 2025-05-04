@@ -1,0 +1,43 @@
+---
+### Values replaced by settings/name.properties as indicated
+# *.targets.0.name: app-ingress = ingress_name
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.ingressClassName
+  targets:
+    - select:
+        kind: Ingress
+        name: app-ingress
+      fieldPaths:
+        - spec.ingressClassName
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.ingress_cert_manager
+  targets:
+    - select:
+        kind: Ingress
+        name: app-ingress
+      fieldPaths:
+        - metadata.annotations.[cert-manager.io/cluster-issuer]
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.ingress_fqdn
+  targets:
+    - select:
+        kind: Ingress
+        name: app-ingress
+      fieldPaths:
+        - spec.tls.0.hosts.0
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.ingress_tls
+  targets:
+    - select:
+        kind: Ingress
+        name: app-ingress
+      fieldPaths:
+        - spec.tls.0.secretName
