@@ -1,7 +1,5 @@
 ---
 ### Values replaced by settings/name.properties as indicated
-# *.targets.0.name: app-pvc = pvc_name
-# storageClass
 - source:
     kind: ConfigMap
     name: settings

@@ -1,7 +1,6 @@
 ---
 ### Values replaced by settings/name.properties as indicated
-# Under metadata:
-# .name: app-cm = configmap_name
+# metadata.name can be set by `configmap_name`
 apiVersion: v1
 kind: ConfigMap
 metadata:

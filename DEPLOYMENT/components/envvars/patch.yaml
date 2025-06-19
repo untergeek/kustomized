@@ -1,8 +1,7 @@
 ---
 ### Values replaced by settings/name.properties as indicated
-# metadata.name: app-name = app_name
-# Under spec.template.spec.containers.0
-# .name: app-container = container_name
+# metadata.name can be set by `app_name`
+# spec.template.spec.containers.0.name can be set by `container_name`
 apiVersion: apps/v1
 kind: Deployment
 metadata:

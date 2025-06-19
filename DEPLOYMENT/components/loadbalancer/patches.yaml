@@ -1,11 +1,10 @@
 ---
 ### Values replaced by settings/name.properties as indicated
-# metadata.name: app-svc = service_name
+# metadata.name can be set by `svc_name`
 ### Values replaced by settings/server.properties as indicated
-# Under metallb.universe.tf/loadBalancerIPs:
-#  KUSTOMIZE = loadbalancer_ip
-# .protocol: TCP = service_protocol
-# spec.type: LoadBalancer = service_type
+# spec.type can be set by `svc_type`
+# spec.loadBalancerIP can be set by `loadbalancer_ip`
+# spec.externalTrafficPolicy can be set by `ext_TrafficPolicy`
 apiVersion: v1
 kind: Service
 metadata:

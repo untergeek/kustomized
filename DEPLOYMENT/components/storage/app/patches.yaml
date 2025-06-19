@@ -1,17 +1,17 @@
 ---
 ### Values replaced by settings/name.properties as indicated
-# metadata.name: app-name = app_name
+# metadata.name -name can be set by `app_name`
 # Under spec.template.spec.containers.0
-# .name: app-container = container_name
+# .name can be set by `container_name`
 # Under .volumeMounts.0
-# .name: app-storage-vol = app-storage_vol
+# .name can be set by `app-storage_vol`
 # Under spec.volumeClaimTemplates.0
-# .metadata.name: app-storage-vol = app-storage_vol
+# .metadata.name can be set by `app-storage_vol`
 ### Values replaced by settings/server.properties as indicated
 # Under spec.template.spec.containers.0.volumeMounts.0
-# .mountPath: /path/to/config = storage_path
+# .mountPath can be set by `appVol_mountPath`
 # Under spec.volumeClaimTemplates.0.spec.resources.requests
-# .storage: 500Mi = store_size
+# .storage can be set by `appVol_storage`
 apiVersion: apps/v1
 kind: Deployment
 metadata:

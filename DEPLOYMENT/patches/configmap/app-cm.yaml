@@ -1,11 +1,10 @@
 ---
 ### Values replaced by settings/name.properties as indicated
-# Under metadata:
-# .name: app-cm = configmap_name
+# Under metadata.name can be set by `configmap_name`
 # It is EXPECTED that you will add as a key the value of the configmap_subpath
 # from settings/server.properties. example.conf is only a placeholder
 # The mountPath and subPath for this ConfigMap should be set in
-# settings/server.properties as configmap_path and configmap_subpath, respectively.
+# settings/server.properties as `cm_mountPath` and configmap_subpath, respectively.
 apiVersion: v1
 kind: ConfigMap
 metadata:
