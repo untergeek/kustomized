@@ -2,17 +2,7 @@
 # Values replaced by settings/name.properties as indicated
 # by the fieldPath in each source directive, i.e. data.SETTING_NAME
 
-## Container Image
-- source:
-    kind: ConfigMap
-    name: settings
-    fieldPath: data.container_image
-  targets:
-    - select:
-        kind: Deployment
-        name: app-name
-      fieldPaths:
-        - spec.template.spec.containers.[name=app-container].image
+
 ## Resources
 - source:
     kind: ConfigMap
@@ -94,7 +84,7 @@
         kind: Deployment
         name: app-name
       fieldPaths:
-        - spec.template.spec.containers.[name=app-container].ports.[name=http].protocol
+        - spec.template.spec.containers.[name=app-container].ports.[name=app-port].protocol
 ## Service Port (the port the Service exposes)
 - source:
     kind: ConfigMap
@@ -105,7 +95,7 @@
         kind: Service
         name: app-svc
       fieldPaths:
-        - spec.ports.[name=http].port
+        - spec.ports.[name=app-port].port
     # - select:
     #     kind: Ingress
     #     name: app-ingress
@@ -121,9 +111,9 @@
         kind: Service
         name: app-svc
       fieldPaths:
-        - spec.ports.[name=http].targetPort
+        - spec.ports.[name=app-port].targetPort
     - select:
         kind: Deployment
         name: app-name
       fieldPaths:
-        - spec.template.spec.containers.[name=app-container].ports.[name=http].containerPort
+        - spec.template.spec.containers.[name=app-container].ports.[name=app-port].containerPort

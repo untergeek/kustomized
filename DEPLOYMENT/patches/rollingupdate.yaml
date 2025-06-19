@@ -1,10 +1,8 @@
 ---
 ### Values replaced by settings/name.properties as indicated
-# Under metadata:
-# .labels.app: app-label = label_app
-# .name: app-name = app_name
-# Under spec:
-# .containers.name: app-container = container_name 
+# metadata.labels.app can be set by `app_label`
+# metadata.name can be set by `app_name``
+# spec.template.spec.containers.name can be set by `container_name `
 #
 # RollingUpdate
 ### Be sure to update the rollingUpdate section and number of replicas

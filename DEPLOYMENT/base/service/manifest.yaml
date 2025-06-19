@@ -1,15 +1,15 @@
 ---
 ### Values replaced by settings/name.properties as indicated
 # Under metadata:
-# .name: app-svc = svc_name
+# .name can be set by `svc_name`
 # Under spec:
-# .selector.app: app-label = label_app
+# .selector.app can be set by `app_label`
+# .name can be set by `svc_port_name`
 ### Values replaced by settings/server.properties as indicated
 # Under spec.ports.0:
-# .protocol: TCP = svc_protocol
-# .port: 80 = svc_port
-# .name: http = svc_port_name
-# .targetPort: 80 = svc_targetPort
+# .protocol can be set by `svc_protocol`
+# .port can be set by `svc_port`
+# .targetPort can be set by `svc_targetPort`
 kind: Service
 apiVersion: v1
 metadata:
@@ -21,5 +21,5 @@ spec:
   ports:
     - protocol: TCP
       port: 80
-      name: http
+      name: app-port
       targetPort: 80

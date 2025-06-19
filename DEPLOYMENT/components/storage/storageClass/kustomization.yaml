@@ -3,7 +3,13 @@ apiVersion: kustomize.config.k8s.io/v1alpha1
 kind: Component
 
 patches:
-- path: patches.yaml
+- target:
+    kind: PersistentVolumeClaim
+    name: app-pvc
+  patch: |-
+    - op: add
+      path: /spec/storageClassName
+      value: default
 
 replacements:
 - path: replacements.yaml

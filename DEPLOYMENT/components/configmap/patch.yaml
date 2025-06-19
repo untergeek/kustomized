@@ -1,17 +1,17 @@
 ---
 ### Values replaced by settings/name.properties as indicated
-# metadata.name: app-name = app_name
+# metadata.name can be set by `app_name`
 # Under spec.template.spec.containers.0
-# .name: app-container = container_name
+# .name can be set by `container_name`
 # Under .volumeMounts.0
-# .name: configmap-vol = configmap_vol
+# .name can be set by `configmap_vol`
 # Under spec.template.spec.volumes.0
-# .name: configmap-vol = configmap_name
+# .name can be set by `configmap_name`
 ### Values replaced by settings/server.properties as indicated
 # Under spec.template.spec.containers.0.volumeMounts.0
-# .mountPath: /path/to/config = configmap_path
+# .mountPath can be set by `cm_mountPath`
 # Under spec.template.spec.volumes.0.configMap
-# .name: app-cm = configmap_name
+# .subPath can be set by `cm_subPath`
 apiVersion: apps/v1
 kind: Deployment
 metadata:

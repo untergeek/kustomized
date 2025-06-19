@@ -1,7 +1,10 @@
 ---
 ### Values replaced by settings/name.properties as indicated
-# [name=app-container] = container_name
-# [name=app-storage-vol] = storage_vol
+# [name=app-storage-vol]..claimName = pvc_name
+### Values replaced by settings/name.properties as indicated
+# .storage = appVol_storage
+# .accessModes[0] = appVol_accessMode
+# .mountPath = appVol_mountPath
 ## Storage
 - source:
     kind: ConfigMap
@@ -13,6 +16,19 @@
         name: app-pvc
       fieldPaths:
         - spec.resources.requests.storage
+
+- source:
+    kind: ConfigMap
+    name: settings
+    fieldPath: data.appVol_accessMode
+  targets:
+    - select:
+        kind: PersistentVolumeClaim
+        name: app-pvc
+      fieldPaths:
+        - spec.accessModes.*
+      options:
+        create: false
 
 - source:
     kind: ConfigMap
